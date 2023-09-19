@@ -10,7 +10,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/toolchain_arm.cmake)
 include(./cmake/compileFlags.cmake)
 
 # project settings
-project(tryCube VERSION 1.0 LANGUAGES C CXX ASM)
+project(HAL VERSION 1.0 LANGUAGES C CXX ASM)
 
 
 message(STATUS "")
