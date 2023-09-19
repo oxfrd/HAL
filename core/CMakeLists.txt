@@ -1,0 +1,1 @@
+add_subdirectory(ST/${MCU_MODEL}/Source ARM)
