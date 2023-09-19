@@ -3,9 +3,8 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_VERSION 1)
 
 set(MCU_MODEL STM32L476)
-set(CPU_CORE cortex-m4)
 
-#set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchain_arm.cmake)
+include(${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/cfg.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/toolchain_arm.cmake)
 include(./cmake/compileFlags.cmake)
 
@@ -41,7 +40,7 @@ add_link_options(-T ${LINKER_SCRIPT})
 set(TARGET_NAME ${PROJECT_NAME}.elf)
 add_executable(${TARGET_NAME} ${SOURCES} ${LINKER_SCRIPT})
 
-target_link_libraries(${TARGET_NAME} PRIVATE ST_RELATED)
+target_link_libraries(${TARGET_NAME} PRIVATE MCU_RELATED)
 
 target_include_directories(${TARGET_NAME} PRIVATE
         ${CMAKE_SOURCE_DIR}/Inc
