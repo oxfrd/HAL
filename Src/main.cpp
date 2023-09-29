@@ -2,6 +2,9 @@
 // Created by oxford on 30.05.23.
 //
 #include "stm32l476xx.h"
+#include "IGpio.h"
+
+hal::gpio::IGpioOutput out;
 
 enum class cGPIOs
 {
@@ -48,7 +51,7 @@ int main()
     GPIOE->MODER |= GPIO_MODER_MODE8_0;          //output
     GPIOE->MODER &= ~GPIO_MODER_MODE8_1;
 //    GPIOE->OTYPER &= ~GPIO_OTYPER_OT8;          //push-pull
-
+    auto LedRed = hal::gpio::IGpioOutput();
     while (true)
     {
         toggle(cGPIOs::ledRed);
