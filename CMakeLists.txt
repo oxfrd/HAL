@@ -24,6 +24,7 @@ message(STATUS "")
 add_definitions(-DDEBUG -D${MCU_MODEL})
 
 add_subdirectory(core)
+add_subdirectory(lib/components)
 
 file(GLOB_RECURSE SOURCES
         "${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/Startup/*.*"
@@ -40,12 +41,14 @@ add_link_options(-T ${LINKER_SCRIPT})
 set(TARGET_NAME ${PROJECT_NAME}.elf)
 add_executable(${TARGET_NAME} ${SOURCES} ${LINKER_SCRIPT})
 
-target_link_libraries(${TARGET_NAME} PRIVATE MCU_RELATED)
+target_link_libraries(${TARGET_NAME} PRIVATE MCU_RELATED HAL)
 
 target_include_directories(${TARGET_NAME} PRIVATE
         ${CMAKE_SOURCE_DIR}/Inc
         ${CMAKE_SOURCE_DIR}/core/ARM/CMSIS/Include
-        ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/Include)
+        ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/Include
+        ${CMAKE_SOURCE_DIR}/lib/
+        ${CMAKE_SOURCE_DIR}/lib/interface)
 
 set(HEX_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex)
 set(BIN_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin)
