@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 
 add_library(HAL STATIC nothing.cpp )
 
-list(APPEND HAL_SOURCES gpio)
+list(APPEND HAL_SOURCES gpio )
 
 add_subdirectory(${HAL_SOURCES})
 

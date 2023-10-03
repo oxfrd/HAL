@@ -3,8 +3,9 @@
 //
 #include "stm32l476xx.h"
 #include "IGpio.h"
+#include "gpio.h"
 
-hal::gpio::IGpioOutput out;
+//hal::gpio::IGpioOutput out;
 
 enum class cGPIOs
 {
@@ -24,45 +25,23 @@ void delayMe(int ticks)
     }
 }
 
-void toggle(cGPIOs pin)
-{
-    switch (pin)
-    {
-        case cGPIOs::ledRed:
-            GPIOB->ODR ^= GPIO_ODR_OD2;
-            break;
-        case cGPIOs::ledGreen:
-            GPIOE->ODR ^= GPIO_ODR_OD8;
-            break;
-    };
-}
 
 int main()
 {
-    RCC->AHB2ENR |= RCC_AHB2ENR_GPIOBEN;
-    RCC->AHB2ENR |= RCC_AHB2ENR_GPIOEEN;
+    auto ledGreen = mcu::gpio::gpioOutput(8, GPIOE);
+    auto ledRed = mcu::gpio::gpioOutput(2, GPIOB);
 
-    GPIOB->MODER |= GPIO_MODER_MODE2_0;          //output
-    GPIOB->MODER &= ~GPIO_MODER_MODE2_1;          //output
-//	    GPIOB->OTYPER &= ~GPIO_OTYPER_OT2;          //push-pull
-//	    GPIOB->OSPEEDR &= ~GPIO_OSPEEDR_OSPEED2_0;  //low speed
-//	    GPIOB->OSPEEDR &= ~GPIO_OSPEEDR_OSPEED2_1;  //low speed
-
-    GPIOE->MODER |= GPIO_MODER_MODE8_0;          //output
-    GPIOE->MODER &= ~GPIO_MODER_MODE8_1;
-//    GPIOE->OTYPER &= ~GPIO_OTYPER_OT8;          //push-pull
-    auto LedRed = hal::gpio::IGpioOutput();
     while (true)
     {
-        toggle(cGPIOs::ledRed);
+        ledRed.on();
         delayMe(10);
 
-        toggle(cGPIOs::ledGreen);
+        ledGreen.off();
+        ledRed.off();
         delayMe(40);
 
-        toggle(cGPIOs::ledGreen);
-
-        toggle(cGPIOs::ledRed);
+        ledGreen.on();
+        ledRed.on();
         delayMe(10);
 
     }

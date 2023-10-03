@@ -22,6 +22,11 @@ namespace hal::mcu {
         eUnique,
         eShared,
     };
+
+    enum class eComponent
+    {
+    };
+
     using pinsMap = std::unordered_map<std::uint16_t, eOwnership>;
 
     class IMcu
@@ -33,6 +38,8 @@ namespace hal::mcu {
     private:
         std::uint16_t m_allPinsNbr;
         pinsMap m_reservedPins;
+
+        std::unordered_map<hal::gpio::*IPort>
 
     };
 
