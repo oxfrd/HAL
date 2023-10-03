@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 
 add_library(MCU_IMPLEMENTATION
-        port.cpp
+        gpioPort.cpp
         gpio.cpp
 )
 

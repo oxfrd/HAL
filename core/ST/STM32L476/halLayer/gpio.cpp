@@ -9,8 +9,9 @@ namespace mcu::gpio
 {
     using namespace hal::gpio;
 
-    gpioOutput::gpioOutput(std::uint8_t pinId, GPIO_TypeDef *regs):
+    gpioOutput::gpioOutput(std::uint8_t pinId, uint8_t portId, GPIO_TypeDef *regs):
     IGpioOutput(),
+    m_port(gpioPort(portId)),
     m_regs(regs),
     m_pinId(pinId)
     {
