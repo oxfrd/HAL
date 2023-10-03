@@ -4,7 +4,7 @@ add_library(MCU
         IMcu.cpp
 )
 
-target_link_libraries(MCU PRIVATE MCU_RELATED)
+target_link_libraries(MCU PRIVATE MCU_RELATED GPIO)
 
 target_include_directories(MCU PUBLIC
         ./*.h

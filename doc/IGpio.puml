@@ -1,0 +1,20 @@
+@startuml
+'https://plantuml.com/class-diagram
+!define DARKBLUE
+!includeurl https://raw.githubusercontent.com/Drakemor/RedDress-PlantUML/master/style.puml
+
+IGpio <--- IPort
+
+
+class IPort
+{
+    +explicit IPort(port_t *portId)
+    -volatile std::uint32_t *m_RCCEnReg
+    -port_t *m_regs
+    -std::uint32_t m_id
+    -error enableClk()
+    -error disableClk()
+}
+
+
+@enduml

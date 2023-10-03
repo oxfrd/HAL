@@ -12,6 +12,7 @@ namespace hal::gpio {
     /// @brief Class representing an Input/Output port.
     ///
     /// The IPort class is used for managing an input/output port with a specified identifier.
+    template<typename port_t>
     class IPort
     {
     public:
@@ -20,15 +21,10 @@ namespace hal::gpio {
         ///
         /// @param portId The port identifier.
         
-        explicit IPort(GPIO_TypeDef *portId);
-    private:
-        volatile std::uint32_t *m_RCCEnReg;
-        GPIO_TypeDef *m_regs;
-        std::uint32_t m_id;
-        error enableClk();
-        error disableClk();
-
-
+        IPort();
+    protected:
+        virtual error enableClk() = 0;
+        virtual error disableClk() = 0;
     };
 
 } //hal::gpio

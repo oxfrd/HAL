@@ -1,0 +1,30 @@
+@startuml
+'https://plantuml.com/class-diagram
+!define DARKBLUE
+!includeurl https://raw.githubusercontent.com/Drakemor/RedDress-PlantUML/master/style.puml
+
+IMcu <|-- IPort
+
+
+
+class IMcu {
+- std::unordered_map<std::uint16_t, eOwnership>
+- std::uint16_t m_allPinsNbr;
++ IMcu(uint16_t pinsNbr);
++ eErrors reservePin(uint16_t pinNo, eOwnership ownership);
+}
+
+class IPort
+  {
+  public:
+      explicit IPort(GPIO_TypeDef *portId)
+  private:
+      volatile std::uint32_t *m_RCCEnReg
+      GPIO_TypeDef *m_regs
+      std::uint32_t m_id
+      error enableClk()
+      error disableClk()
+  }
+
+
+@enduml

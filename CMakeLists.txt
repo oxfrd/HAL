@@ -35,13 +35,13 @@ file(GLOB_RECURSE SOURCES
 set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/linker.ld)
 
 add_link_options(-Wl,-gc-sections,--print-memory-usage,-Map=${PROJECT_BINARY_DIR}/${PROJECT_NAME}.map)
-add_link_options(-mcpu=${CPU_CORE} -mthumb -mthumb-interwork)
+add_link_options(-mcpu=${CPU_CORE} -mthumb -mthumb-interwork -specs=nosys.specs)
 add_link_options(-T ${LINKER_SCRIPT})
 
 set(TARGET_NAME ${PROJECT_NAME}.elf)
 add_executable(${TARGET_NAME} ${SOURCES} ${LINKER_SCRIPT})
 
-target_link_libraries(${TARGET_NAME} PRIVATE MCU_RELATED HAL)
+target_link_libraries(${TARGET_NAME} PRIVATE MCU_RELATED HAL MCU_IMPLEMENTATION) #MCU_IMPLEMENTATION
 
 target_include_directories(${TARGET_NAME} PRIVATE
         ${CMAKE_SOURCE_DIR}/Inc
