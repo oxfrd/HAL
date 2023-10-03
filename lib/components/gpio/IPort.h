@@ -27,4 +27,9 @@ namespace hal::gpio {
         virtual error disableClk() = 0;
     };
 
+    template<typename port_t>
+    IPort<port_t>::IPort() {
+
+    }
+
 } //hal::gpio

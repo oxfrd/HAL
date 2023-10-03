@@ -1,11 +1,12 @@
 //
 // Created by oxford on 30.05.23.
 //
+#include <vector>
 #include "stm32l476xx.h"
 #include "IGpio.h"
 #include "gpio.h"
 
-//hal::gpio::IGpioOutput out;
+//hal::gpio::IGpioOutput<GPIO_TypeDef> *out;
 
 enum class cGPIOs
 {
@@ -25,25 +26,32 @@ void delayMe(int ticks)
     }
 }
 
-
 int main()
 {
-    auto ledGreen = mcu::gpio::gpioOutput(8, GPIOE);
-    auto ledRed = mcu::gpio::gpioOutput(2, GPIOB);
+    std::vector<hal::gpio::IGpioOutput<GPIO_TypeDef>*> outs;
+
+    outs.push_back(new mcu::gpio::gpioOutput(8, 4, GPIOE));
+    outs.push_back(new mcu::gpio::gpioOutput(2, 1, GPIOB));
 
     while (true)
     {
-        ledRed.on();
+        for(auto out : outs)
+        {
+            out->toggle();
+        }
         delayMe(10);
 
-        ledGreen.off();
-        ledRed.off();
+        for(auto out : outs)
+        {
+            out->toggle();
+        }
         delayMe(40);
 
-        ledGreen.on();
-        ledRed.on();
+        for(auto out : outs)
+        {
+            out->toggle();
+        }
         delayMe(10);
-
     }
     return 0;
 }
