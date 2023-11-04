@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 
-add_library(HAL STATIC nothing.cpp )
+add_library(HAL STATIC nothing.cpp
+        ../interface/IComponent.h)
 
 list(APPEND HAL_SOURCES gpio )
 

@@ -32,7 +32,8 @@ file(GLOB_RECURSE SOURCES
         "${CMAKE_SOURCE_DIR}/Src/main.cpp"
         )
 
-set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/linker.ld)
+set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/linker.ld
+        lib/interface/IComponent.h)
 
 add_link_options(-Wl,-gc-sections,--print-memory-usage,-Map=${PROJECT_BINARY_DIR}/${PROJECT_NAME}.map)
 add_link_options(-mcpu=${CPU_CORE} -mthumb -mthumb-interwork -specs=nosys.specs)

@@ -6,16 +6,9 @@
 #include "string"
 #include "unordered_map"
 #include "vector"
-
+#include "errors.h"
 
 namespace hal::mcu {
-
-    enum class eErrors
-    {
-        eOk,
-        eAlreadyReserved,
-        eNotExist,
-    };
 
     enum class eOwnership
     {
@@ -23,23 +16,31 @@ namespace hal::mcu {
         eShared,
     };
 
-    enum class eComponent
-    {
-    };
-
-    using pinsMap = std::unordered_map<std::uint16_t, eOwnership>;
-
     class IMcu
     {
     public:
         IMcu(uint16_t pinsNbr);
-        eErrors reservePin(uint16_t pinNo, eOwnership ownership);
+        error reservePin(uint16_t pinNo, eOwnership ownership);
 
     private:
         std::uint16_t m_allPinsNbr;
-        pinsMap m_reservedPins;
 
-        std::unordered_map<hal::gpio::*IPort>
+//        std::unordered_map<hal::gpio::*IPort>
+
+    };
+
+    template<typename portId_t>
+    class devManager
+    {
+    public:
+        devManager();
+        devManager(devManager const&) = delete;
+        void operator = (devManager const&) = delete;
+        virtual error init(eOwnership ownership) = 0;
+        error reserveResource(portId_t resourceId);
+    private:
+        std::unordered_map<std::uint16_t, eOwnership> m_reservedPins;
+        std::unordered_map<portId_t, eOwnership> m_resourcesMap;
 
     };
 

@@ -8,6 +8,7 @@ enum class error{
     eOk,
     eFail,
     eUninitialized,
+    eAlreadyReserved,
     eNotPermitted,
     eBusy,
 };
