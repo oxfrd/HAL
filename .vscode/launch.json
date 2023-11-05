@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "cwd": "${workspaceFolder}/build/",
+            "executable": "${workspaceFolder}/build/HAL.elf",
+            "name": "Debug HAL",
+            "device": "STM32L476",
+            "svdFile": "${workspaceFolder}/core/ST/STM32L476/Startup/stm32l4x6.svd",
+            "configFiles": [
+                "interface/stlink.cfg", "target/stm32l4x.cfg"
+            ],
+            "runToEntryPoint": "true",
+        },
+    ]
+}
