@@ -1,0 +1,13 @@
+{
+	"cortex-debug.armToolchainPath": "usr/bin",
+    "cortex-debug.openocdPath": "usr/bin",
+    "files.associations": {
+        "locale": "c",
+        "thread": "c",
+        "xlocale": "c",
+        "xlocmes": "c",
+        "xlocmon": "c",
+        "xlocnum": "c",
+        "xloctime": "c"
+    },
+}
