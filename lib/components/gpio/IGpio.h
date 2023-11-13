@@ -6,6 +6,7 @@
 #include <cstdint>
 #include "errors.h"
 #include "IPort.h"
+#include "IMcu.h"
 
 namespace hal::gpio
 {
@@ -53,8 +54,8 @@ namespace hal::gpio
         eSpeed speed{eSpeed::eLow};
     };
 
-    template<typename port_t>
-    class IGpioOutput
+    // template<typename port_t>
+    class IGpioOutput : public IResource
     {
     public:
         IGpioOutput() = default;

@@ -5,8 +5,8 @@
 #include "stm32l476xx.h"
 #include "IGpio.h"
 #include "gpio.h"
-
-//hal::gpio::IGpioOutput<GPIO_TypeDef> *out;
+#include "IComponent.h"
+#include "mcuInit.h"
 
 enum class cGPIOs
 {
@@ -28,29 +28,23 @@ void delayMe(int ticks)
 
 int main()
 {
-    std::vector<hal::gpio::IGpioOutput<GPIO_TypeDef>*> outs;
+    hal::mcu::mcuManager *mcuST32L476; 
+    mcu::ST32L476::init( mcuST32L476);
+    
+    using namespace mcu::ST32L476;
 
-    outs.push_back(new mcu::gpio::gpioOutput(8, 4, GPIOE));
-    outs.push_back(new mcu::gpio::gpioOutput(2, 1, GPIOB));
-
+    hal::gpio::IGpioOutput *gpio;
+    auto B2 = mcuST32L476->getResource(static_cast<std::uint16_t> (eMcuResources::eGPIO_B2), gpio);
     while (true)
     {
-        for(auto out : outs)
-        {
-            out->toggle();
-        }
+        gpio->toggle();
         delayMe(10);
 
-        for(auto out : outs)
-        {
-            out->toggle();
-        }
+        gpio->toggle();
+
         delayMe(40);
 
-        for(auto out : outs)
-        {
-            out->toggle();
-        }
+        gpio->toggle();
         delayMe(10);
     }
     return 0;

@@ -1,6 +1,6 @@
 {
-	"cortex-debug.armToolchainPath": "usr/bin",
-    "cortex-debug.openocdPath": "usr/bin",
+	// "cortex-debug.armToolchainPath": "usr/bin",
+    "cortex-debug.openocdPath": "/usr/bin",
     "files.associations": {
         "locale": "c",
         "thread": "c",
@@ -8,6 +8,12 @@
         "xlocmes": "c",
         "xlocmon": "c",
         "xlocnum": "c",
-        "xloctime": "c"
+        "xloctime": "c",
+        "*.tcc": "cpp",
+        "unordered_map": "cpp",
+        "numeric": "cpp",
+        "ostream": "cpp"
     },
+    "cmake.configureOnOpen": true,
+    "cortex-debug.gdbPath": "/usr/bin/gdb-multiarch",
 }

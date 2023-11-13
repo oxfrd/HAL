@@ -5,6 +5,8 @@
 
 #include <cstdint>
 #include "errors.h"
+#include <vector>
+#include <IMcu.h>
 
 namespace hal {
     /**
@@ -17,7 +19,6 @@ namespace hal {
     *   @IMPORTANT            !!! IMPORTANT !!!
     *   @IMPORTANT 0 must be defined as uninitialized in devId_t and cannot be used in another way!
     */
-    template<typename devId_t>
     class IResource
     {
     public:
@@ -28,16 +29,35 @@ namespace hal {
          *
          * @return Device identifier.
          */
-        devId_t getDevId()
+        std::uint16_t getDevId()
         {
             return m_id;
         }
+
+        /**
+         * @brief Initialization of resource
+         * 
+         * @return  State of operation
+         */
+        virtual error init();
+
+        /**
+         * @brief Uninitialization of resource
+         * 
+         * @return State of operation
+         */
+        virtual error deInit();
+
+        // hal::mcu::eOwnership g   etOwnership();
+
     private:
         /**
          * @brief Device identifier.
          *
          * This field stores the device identifier.
          */
-        devId_t m_id = static_cast<devId_t>(0);
+        std::uint16_t m_id = 0;
+        // hal::mcu::eOwnership m_ownership = mcu::eOwnership::eUnique;
+        std::uint8_t m_ownersNbr = 0;
     };
 }
