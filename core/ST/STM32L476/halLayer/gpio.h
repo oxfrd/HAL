@@ -12,17 +12,17 @@
 namespace mcu::gpio {
 
     using namespace hal::gpio;
-    class gpioOutput : public hal::gpio::IGpioOutput<GPIO_TypeDef>
+    class gpioOutput : public hal::gpio::IGpioOutput //<GPIO_TypeDef>
     {
     public:
         explicit gpioOutput(std::uint8_t pinId, uint8_t portId, GPIO_TypeDef *regs);
-        error off() override;
-        error on() override;
-        error toggle() override;
+        error off() override final;
+        error on() override final;
+        error toggle() override final;
     protected:
-        error setSpeed(eSpeed speed) override;
-        error setTermination(eTermination type) override;
-        error lockConfiguration() override;
+        error setSpeed(eSpeed speed) override final;
+        error setTermination(eTermination type) override final;
+        error lockConfiguration() override final;
         error setMode(eMode);
     private:
         //reg specific, should be abstracted in future

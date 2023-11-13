@@ -3,11 +3,13 @@
     "configurations": [
         {
             "type": "cortex-debug",
+            "showDevDebugOutput": "raw",
             "request": "launch",
             "servertype": "openocd",
-            "cwd": "${workspaceFolder}/build/",
+            "serverpath": "/usr/bin/openocd",
+            "cwd": "${workspaceFolder}/build",
             "executable": "${workspaceFolder}/build/HAL.elf",
-            "name": "Debug HAL",
+            "name": "Debug_HAL",
             "device": "STM32L476",
             "svdFile": "${workspaceFolder}/core/ST/STM32L476/Startup/stm32l4x6.svd",
             "configFiles": [

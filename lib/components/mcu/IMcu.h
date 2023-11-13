@@ -8,9 +8,11 @@
 #include "vector"
 #include "errors.h"
 
+#include "IComponent.h"
+
 namespace hal::mcu {
 
-    enum class eOwnership
+    enum eOwnership
     {
         eUnique,
         eShared,
@@ -19,28 +21,24 @@ namespace hal::mcu {
     class IMcu
     {
     public:
-        IMcu(uint16_t pinsNbr);
-        error reservePin(uint16_t pinNo, eOwnership ownership);
-
+        // IMcu(uint16_t pinsNbr);
+        // error reservePin(uint16_t pinNo, eOwnership ownership);
     private:
         std::uint16_t m_allPinsNbr;
-
 //        std::unordered_map<hal::gpio::*IPort>
-
     };
 
-    template<typename portId_t>
-    class devManager
+    class mcuManager : public IMcu
     {
     public:
-        devManager();
-        devManager(devManager const&) = delete;
-        void operator = (devManager const&) = delete;
-        virtual error init(eOwnership ownership) = 0;
-        error reserveResource(portId_t resourceId);
+        mcuManager() = default;
+        mcuManager(mcuManager const&) = delete;
+        void operator = (mcuManager const&) = delete;
+        error reserveResource(std::uint16_t id, IResource *reference);
+        error getResource(std::uint16_t id, IResource *reference);
     private:
-        std::unordered_map<std::uint16_t, eOwnership> m_reservedPins;
-        std::unordered_map<portId_t, eOwnership> m_resourcesMap;
+        // std::unordered_map<std::uint16_t, eOwnership> m_reservedPins;
+        std::unordered_map<std::uint16_t, IResource*> m_resourcesMap;
 
     };
 
