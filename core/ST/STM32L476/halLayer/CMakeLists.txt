@@ -6,12 +6,9 @@ add_library(MCU_IMPLEMENTATION
         mcuInit.cpp
 )
 
-target_link_libraries(MCU_IMPLEMENTATION PUBLIC HAL MCU_RELATED)
+target_link_libraries(MCU_IMPLEMENTATION PRIVATE HAL_MCU_LAYER MCU_RELATED)
 
-target_include_directories(MCU_IMPLEMENTATION PUBLIC
-        ./Include
-        ./
-        ${CMAKE_SOURCE_DIR}/lib/components/gpio
-        ${CMAKE_SOURCE_DIR}/lib/components/mcu
-        ${CMAKE_SOURCE_DIR}/lib/interface
+target_include_directories(MCU_IMPLEMENTATION PRIVATE
+        ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/Include
+        ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/halLayer
 )

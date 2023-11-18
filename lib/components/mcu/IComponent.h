@@ -6,7 +6,6 @@
 #include <cstdint>
 #include "errors.h"
 #include <vector>
-#include <IMcu.h>
 
 namespace hal {
     /**
@@ -29,35 +28,34 @@ namespace hal {
          *
          * @return Device identifier.
          */
-        std::uint16_t getDevId()
-        {
-            return m_id;
-        }
+        // std::uint16_t getDevId();
 
         /**
          * @brief Initialization of resource
          * 
          * @return  State of operation
          */
-        virtual error init();
+        // virtual error init();
 
         /**
          * @brief Uninitialization of resource
          * 
          * @return State of operation
          */
-        virtual error deInit();
+        // virtual error deInit();
 
         // hal::mcu::eOwnership g   etOwnership();
+        // IResource(); 
 
     private:
+
         /**
          * @brief Device identifier.
          *
          * This field stores the device identifier.
          */
-        std::uint16_t m_id = 0;
+        // std::uint16_t m_id = 0;
         // hal::mcu::eOwnership m_ownership = mcu::eOwnership::eUnique;
-        std::uint8_t m_ownersNbr = 0;
+        // std::uint8_t m_ownersNbr = 0;
     };
 }

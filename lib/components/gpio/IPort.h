@@ -4,7 +4,6 @@
 #pragma once
 
 #include <cstdint>
-#include "stm32l476xx.h"
 #include "errors.h"
 
 namespace hal::gpio {

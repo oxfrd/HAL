@@ -1,12 +1,14 @@
 //
 // Created by oxford on 30.09.23.
 //
+#pragma once 
+
 #include "stm32l476xx.h"
 
 #include <cstdint>
 #include "IPort.h"
 
-namespace mcu::gpio {
+namespace mcu::ST32L476::gpio {
 
     class gpioPort : public hal::gpio::IPort<GPIO_TypeDef> {
     public:

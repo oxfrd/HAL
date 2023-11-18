@@ -25,7 +25,6 @@ namespace hal::mcu {
         // error reservePin(uint16_t pinNo, eOwnership ownership);
     private:
         std::uint16_t m_allPinsNbr;
-//        std::unordered_map<hal::gpio::*IPort>
     };
 
     class mcuManager : public IMcu

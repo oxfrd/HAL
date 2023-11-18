@@ -9,7 +9,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/toolchain_arm.cmake)
 include(./cmake/compileFlags.cmake)
 
 # project settings
-project(HAL VERSION 1.0 LANGUAGES C CXX ASM)
+project(HAL_MCU VERSION 1.0 LANGUAGES C CXX ASM)
 
 
 message(STATUS "")
@@ -27,13 +27,10 @@ add_subdirectory(core)
 add_subdirectory(lib/components)
 
 file(GLOB_RECURSE SOURCES
-        "${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/Startup/*.*"
-#        "${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/Source/system_stm32l4xx.c"
         "${CMAKE_SOURCE_DIR}/Src/main.cpp"
         )
 
 set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/linker.ld)
-        # lib/interface/IComponent.h)
 
 add_link_options(-Wl,-gc-sections,--print-memory-usage,-Map=${PROJECT_BINARY_DIR}/${PROJECT_NAME}.map)
 add_link_options(-mcpu=${CPU_CORE} -mthumb -mthumb-interwork -specs=nosys.specs)
@@ -42,14 +39,14 @@ add_link_options(-T ${LINKER_SCRIPT})
 set(TARGET_NAME ${PROJECT_NAME}.elf)
 add_executable(${TARGET_NAME} ${SOURCES} ${LINKER_SCRIPT})
 
-target_link_libraries(${TARGET_NAME} PRIVATE MCU_RELATED HAL MCU_IMPLEMENTATION) #MCU_IMPLEMENTATION
+target_link_libraries(${TARGET_NAME} PRIVATE HAL_MCU_LAYER MCU_RELATED MCU_IMPLEMENTATION) #MCU_IMPLEMENTATION
 
 target_include_directories(${TARGET_NAME} PRIVATE
         ${CMAKE_SOURCE_DIR}/Inc
-        ${CMAKE_SOURCE_DIR}/core/ARM/CMSIS/Include
-        ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/Include
-        ${CMAKE_SOURCE_DIR}/lib/
-        ${CMAKE_SOURCE_DIR}/lib/interface)
+        # ${CMAKE_SOURCE_DIR}/core/ARM/CMSIS/Include
+        # ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/Include
+        # ${CMAKE_SOURCE_DIR}/lib 
+        )
 
 set(HEX_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex)
 set(BIN_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin)

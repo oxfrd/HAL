@@ -7,6 +7,7 @@
 #include "gpio.h"
 #include "IComponent.h"
 #include "mcuInit.h"
+#include "main.h"
 
 enum class cGPIOs
 {
@@ -14,7 +15,7 @@ enum class cGPIOs
     ledGreen,
 };
 
-void delayMe(int ticks)
+static void delayMe(int ticks)
 {
     int x = ticks;
     for (int i = 0; i < 10000; i++)
@@ -29,7 +30,7 @@ void delayMe(int ticks)
 int main()
 {
     hal::mcu::mcuManager *mcuST32L476; 
-    mcu::ST32L476::init( mcuST32L476);
+    mcu::ST32L476::init(mcuST32L476);
     
     using namespace mcu::ST32L476;
 
