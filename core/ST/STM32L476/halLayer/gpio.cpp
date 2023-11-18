@@ -5,7 +5,7 @@
 #include "gpio.h"
 
 
-namespace mcu::gpio
+namespace mcu::ST32L476::gpio
 {
     using namespace hal::gpio;
 
@@ -38,6 +38,10 @@ namespace mcu::gpio
         m_regs->ODR ^= (1 << m_pinId);
         return err;
     }
+
+    // error gpioOutput::deInit() { return error::eUninitialized; }
+
+    // error gpioOutput::init() { return error::eUninitialized; }
 
     error gpioOutput::setSpeed(eSpeed speed)
     {
@@ -87,4 +91,4 @@ namespace mcu::gpio
         return error::eOk;
     }
 
-} // mcu::gpio
+} // ST32L476::gpio

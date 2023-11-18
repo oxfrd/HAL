@@ -12,10 +12,10 @@ void init(hal::mcu::IMcu *mcuHandle)
 {
     auto mcu = hal::mcu::mcuManager();
 
-    auto gpio = new mcu::gpio::gpioOutput(8, 4, GPIOE);
+    auto gpio = new gpio::gpioOutput(8, 4, GPIOE);
     mcu.reserveResource(static_cast<std::uint16_t>(eMcuResources::eGPIO_E8), gpio);
 
-    gpio = new mcu::gpio::gpioOutput(2, 1, GPIOB);
+    gpio = new gpio::gpioOutput(2, 1, GPIOB);
     mcu.reserveResource(static_cast<std::uint16_t>(eMcuResources::eGPIO_B2), gpio);
 
     *mcuHandle = mcu;

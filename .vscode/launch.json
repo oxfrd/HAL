@@ -8,7 +8,7 @@
             "servertype": "openocd",
             "serverpath": "/usr/bin/openocd",
             "cwd": "${workspaceFolder}/build",
-            "executable": "${workspaceFolder}/build/HAL.elf",
+            "executable": "${workspaceFolder}/build/HAL_MCU.elf",
             "name": "Debug_HAL",
             "device": "STM32L476",
             "svdFile": "${workspaceFolder}/core/ST/STM32L476/Startup/stm32l4x6.svd",

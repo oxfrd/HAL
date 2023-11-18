@@ -55,7 +55,7 @@ namespace hal::gpio
     };
 
     // template<typename port_t>
-    class IGpioOutput : public IResource
+    class IGpioOutput : virtual public IResource
     {
     public:
         IGpioOutput() = default;

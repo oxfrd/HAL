@@ -9,7 +9,7 @@
 #include "gpioPort.h"
 
 
-namespace mcu::gpio {
+namespace mcu::ST32L476::gpio {
 
     using namespace hal::gpio;
     class gpioOutput : public hal::gpio::IGpioOutput //<GPIO_TypeDef>
@@ -19,17 +19,20 @@ namespace mcu::gpio {
         error off() override final;
         error on() override final;
         error toggle() override final;
+        // error deInit() override;
+        // error init() override;
     protected:
         error setSpeed(eSpeed speed) override final;
         error setTermination(eTermination type) override final;
         error lockConfiguration() override final;
         error setMode(eMode);
     private:
+        
         //reg specific, should be abstracted in future
-        mcu::gpio::gpioPort m_port;
+        mcu::ST32L476::gpio::gpioPort m_port;
         GPIO_TypeDef *m_regs;
 
         std::int8_t m_pinId;
 
     };
-} // mcu::gpio
+} // mcu::ST32L476::gpio
