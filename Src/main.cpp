@@ -29,13 +29,13 @@ static void delayMe(int ticks)
 
 int main()
 {
-    hal::mcu::mcuManager *mcuST32L476; 
+    hal::mcu::mcuManager *mcuST32L476 = nullptr; 
     mcu::ST32L476::init(mcuST32L476);
     
     using namespace mcu::ST32L476;
 
-    hal::gpio::IGpioOutput *gpio;
-    auto B2 = mcuST32L476->getResource(static_cast<std::uint16_t> (eMcuResources::eGPIO_B2), gpio);
+    hal::gpio::IGpioOutput *gpio = nullptr;
+    mcuST32L476->getResource(static_cast<std::uint16_t> (eMcuResources::eGPIO_B2), gpio);
     while (true)
     {
         gpio->toggle();
