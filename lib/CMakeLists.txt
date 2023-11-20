@@ -1,2 +1,1 @@
-add_subdirectory(gpio)
-add_subdirectory(mcu)
+add_subdirectory(components)
