@@ -1,24 +1,37 @@
 //created by Oxfrd 8.11.2023
 
 #include "mcuInit.h"
-#include "vector"
 #include "IGpio.h"
 #include "gpio.h"
-#include "IMcu.h"
+#include <cassert>
+
+void checkErr(eError err)
+{
+    if(err != eError::eOk)
+    {
+        assert(0);
+    }
+}
 
 namespace mcu::ST32L476{
 
-void init(hal::mcu::IMcu *mcuHandle)
+std::shared_ptr<hal::mcu::mcuManager> init()
 {
-    auto mcu = hal::mcu::mcuManager();
+    auto mcu = std::make_shared<hal::mcu::mcuManager>(hal::mcu::mcuManager());
+    if (mcu == nullptr)
+    {
+        assert(0);
+    }
+    
+    auto gpio = std::make_shared<gpio::gpioOutput>(8, 4, GPIOE);
+    auto err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eGPIO_E8),std::move(gpio));
+    checkErr(err);
 
-    auto gpio = new gpio::gpioOutput(8, 4, GPIOE);
-    auto err = mcu.reserveResource(static_cast<std::uint16_t>(eMcuResources::eGPIO_E8), gpio);
+    gpio = std::make_shared<gpio::gpioOutput>(2, 1, GPIOB);
+    err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eGPIO_B2), std::move(gpio));
+    checkErr(err);
 
-    gpio = new gpio::gpioOutput(2, 1, GPIOB);
-    mcu.reserveResource(static_cast<std::uint16_t>(eMcuResources::eGPIO_B2), gpio);
-
-    *mcuHandle = mcu;
+    return std::move(mcu);
 }
 
 }   //mcu::ST32L476

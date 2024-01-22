@@ -2,38 +2,15 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build blink",
+            "label": "buildd",
             "type": "shell",
             "command": "make",
             "args": [],
             "options": {
-                "cwd": "${workspaceFolder}"
+                "cwd": "${workspaceFolder}/build"
             },
             "group": "build",
             "problemMatcher": []
         },
-        {
-            "type": "cppbuild",
-            "label": "C/C++: g++ kompiluj aktywny plik",
-            "command": "/usr/bin/g++",
-            "args": [
-                "-fdiagnostics-color=always",
-                "-g",
-                "${file}",
-                "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
-            ],
-            "options": {
-                "cwd": "${fileDirname}"
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "detail": "Zadanie wygenerowane przez debuger."
-        }
     ]
 }

@@ -9,6 +9,7 @@
 #include "errors.h"
 
 #include "IComponent.h"
+#include <memory>
 
 namespace hal::mcu {
 
@@ -22,7 +23,7 @@ namespace hal::mcu {
     {
     public:
         // IMcu(uint16_t pinsNbr);
-        // error reservePin(uint16_t pinNo, eOwnership ownership);
+        // eError reservePin(uint16_t pinNo, eOwnership ownership);
     private:
         std::uint16_t m_allPinsNbr;
     };
@@ -31,14 +32,13 @@ namespace hal::mcu {
     {
     public:
         mcuManager() = default;
-        mcuManager(mcuManager const&) = delete;
-        void operator = (mcuManager const&) = delete;
-        error reserveResource(std::uint16_t id, IResource *reference);
-        error getResource(std::uint16_t id, IResource *reference);
+        eError reserveResource(std::uint16_t id, std::shared_ptr<IResource> reference);
+        eError reserveResource(std::shared_ptr<IResource>);
+        std::shared_ptr<IResource> getResource(std::uint16_t id, std::shared_ptr<IResource> reference);
+        std::shared_ptr<IResource> getResource(std::uint16_t id); 
+        
     private:
         // std::unordered_map<std::uint16_t, eOwnership> m_reservedPins;
-        std::unordered_map<std::uint16_t, IResource*> m_resourcesMap;
-
+        std::unordered_map<std::uint16_t, std::shared_ptr<IResource>> m_resourcesMap;
     };
-
 } // hal::mcu

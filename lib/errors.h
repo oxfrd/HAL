@@ -4,7 +4,8 @@
 
 #pragma once
 
-enum class error{
+enum class eError
+{
     eOk,
     eFail,
     eUninitialized,

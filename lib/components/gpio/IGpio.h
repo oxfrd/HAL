@@ -40,11 +40,11 @@ namespace hal::gpio
     class IGpioInit
     {
     public:
-        virtual error enableClk() = 0;
-        virtual error disableClk() = 0;
-        virtual error setMode(eMode mode) = 0;
-        virtual error setTermination(eTermination type) = 0;
-        virtual error lockConfiguration() = 0;
+        virtual eError enableClk() = 0;
+        virtual eError disableClk() = 0;
+        virtual eError setMode(eMode mode) = 0;
+        virtual eError setTermination(eTermination type) = 0;
+        virtual eError lockConfiguration() = 0;
 
     };
 
@@ -55,19 +55,21 @@ namespace hal::gpio
     };
 
     // template<typename port_t>
-    class IGpioOutput : virtual public IResource
+    class IGpioOutput : public IResource
     {
     public:
         IGpioOutput() = default;
 //        IGpioOutput(port_t id, std::uint16_t pinNo, gpioParams initParam);
-        virtual error on() = 0;
-        virtual error off() = 0;
-        virtual error toggle() = 0;
-
+        virtual eError on() = 0;
+        virtual eError off() = 0;
+        virtual eError toggle() = 0;
+        std::pair<std::shared_ptr<IGpioOutput>, eError> getPtr( 
+            std::uint16_t id,
+            std::shared_ptr<hal::mcu::mcuManager> mcuMan);
     protected:
-        virtual error setSpeed(eSpeed speed) = 0;
-        virtual error setTermination(eTermination type) = 0;
-        virtual error lockConfiguration() = 0;
+        virtual eError setSpeed(eSpeed speed) = 0;
+        virtual eError setTermination(eTermination type) = 0;
+        virtual eError lockConfiguration() = 0;
 
     private:
 //        auto port = hal::gpio::IPort();
@@ -77,6 +79,6 @@ namespace hal::gpio
     class IGpioInput
     {
     public:
-        virtual error getState();
+        virtual eError getState();
     };
 }

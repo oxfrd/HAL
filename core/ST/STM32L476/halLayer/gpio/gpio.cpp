@@ -18,50 +18,50 @@ namespace mcu::ST32L476::gpio
         setMode(eMode::eOutput);
     }
 
-    error gpioOutput::on()
+    eError gpioOutput::on()
     {
-        error err = error::eUninitialized;
+        eError err = eError::eUninitialized;
         m_regs->ODR |= (1 << m_pinId);
         return err;
     }
 
-    error gpioOutput::off()
+    eError gpioOutput::off()
     {
-        error err = error::eUninitialized;
+        eError err = eError::eUninitialized;
         m_regs->ODR &= ~(1 << m_pinId);
         return err;
     }
 
-    error gpioOutput::toggle()
+    eError gpioOutput::toggle()
     {
-        error err = error::eUninitialized;
+        eError err = eError::eUninitialized;
         m_regs->ODR ^= (1 << m_pinId);
         return err;
     }
 
-    // error gpioOutput::deInit() { return error::eUninitialized; }
+    // eError gpioOutput::deInit() { return eError::eUninitialized; }
 
-    // error gpioOutput::init() { return error::eUninitialized; }
+    // eError gpioOutput::init() { return eError::eUninitialized; }
 
-    error gpioOutput::setSpeed(eSpeed speed)
+    eError gpioOutput::setSpeed(eSpeed speed)
     {
         const auto pinOffset{2 * m_pinId};      //TODO: fix this masks
         m_regs->OSPEEDR = (static_cast<uint32_t>(speed) << pinOffset);
 
-        return error::eOk;
+        return eError::eOk;
     }
 
-    error gpioOutput::setTermination(eTermination type)
+    eError gpioOutput::setTermination(eTermination type)
     {
         const auto pinOffset{2 * m_pinId};
         m_regs->PUPDR = (static_cast<uint32_t>(type) << pinOffset);
-        return error::eOk;
+        return eError::eOk;
     }
 
-    error gpioOutput::lockConfiguration()
+    eError gpioOutput::lockConfiguration()
     {
         constexpr uint32_t LCKR16 = (1 <<16);
-        auto err {error::eFail};
+        auto err {eError::eFail};
 
         auto lockState = [this]() {
             return m_regs->LCKR & LCKR16;
@@ -69,7 +69,7 @@ namespace mcu::ST32L476::gpio
 
         if (lockState() == true)
         {
-            err = error::eOk;
+            err = eError::eOk;
         } else
         {
             m_regs->LCKR |= LCKR16;
@@ -78,17 +78,17 @@ namespace mcu::ST32L476::gpio
 
             if (lockState() == true)
             {
-                err = error::eOk;
+                err = eError::eOk;
             }
         }
         return err;
     }
 
-    error gpioOutput::setMode(eMode mode)
+    eError gpioOutput::setMode(eMode mode)
     {
         const auto pinOffset{2 * m_pinId};
         m_regs->MODER = (static_cast<uint32_t>(mode) << pinOffset);
-        return error::eOk;
+        return eError::eOk;
     }
 
 } // ST32L476::gpio
