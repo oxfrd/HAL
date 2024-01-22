@@ -35,15 +35,15 @@ namespace hal {
          * 
          * @return  State of operation
          */
-        // virtual error init();
+        // virtual eError init();
 
         /**
          * @brief Uninitialization of resource
          * 
          * @return State of operation
          */
-        // virtual error deInit();
-
+        // virtual eError deInit();
+        virtual ~IResource() = default;
         // hal::mcu::eOwnership g   etOwnership();
         // IResource(); 
 

@@ -13,15 +13,15 @@ namespace mcu::ST32L476::gpio {
         enableClk();
     }
 
-    error gpioPort::enableClk()
+    eError gpioPort::enableClk()
     {
         *m_RCCEnReg |= (1 << m_id);
-        return error::eOk;
+        return eError::eOk;
     }
 
-    error gpioPort::disableClk()
+    eError gpioPort::disableClk()
     {
         *m_RCCEnReg &= ~(1 << m_id);
-        return error::eOk;
+        return eError::eOk;
     }
 }

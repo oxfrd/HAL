@@ -22,8 +22,8 @@ namespace hal::gpio {
         
         IPort();
     protected:
-        virtual error enableClk() = 0;
-        virtual error disableClk() = 0;
+        virtual eError enableClk() = 0;
+        virtual eError disableClk() = 0;
     };
 
     template<typename port_t>

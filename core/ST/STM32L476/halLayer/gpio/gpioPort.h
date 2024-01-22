@@ -15,8 +15,8 @@ namespace mcu::ST32L476::gpio {
         explicit gpioPort(uint8_t portId);
 
     protected:
-        error enableClk() override;
-        error disableClk() override;
+        eError enableClk() override;
+        eError disableClk() override;
     private:
         //reg specific, should be abstracted in future
         static constexpr uint32_t cPortSizeInMem = 0x400;

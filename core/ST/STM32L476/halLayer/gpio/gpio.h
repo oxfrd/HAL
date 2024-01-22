@@ -16,16 +16,16 @@ namespace mcu::ST32L476::gpio {
     {
     public:
         explicit gpioOutput(std::uint8_t pinId, uint8_t portId, GPIO_TypeDef *regs);
-        error off() override final;
-        error on() override final;
-        error toggle() override final;
-        // error deInit() override;
-        // error init() override;
+        eError off() override final;
+        eError on() override final;
+        eError toggle() override final;
+        // eError deInit() override;
+        // eError init() override;
     protected:
-        error setSpeed(eSpeed speed) override final;
-        error setTermination(eTermination type) override final;
-        error lockConfiguration() override final;
-        error setMode(eMode);
+        eError setSpeed(eSpeed speed) override final;
+        eError setTermination(eTermination type) override final;
+        eError lockConfiguration() override final;
+        eError setMode(eMode);
     private:
         
         //reg specific, should be abstracted in future

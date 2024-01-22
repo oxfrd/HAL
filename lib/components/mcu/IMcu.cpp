@@ -6,7 +6,7 @@
 
 
 namespace hal::mcu {
-    // eErrors IMcu::reservePin(uint16_t pinNo, eOwnership ownership)
+    // eError IMcu::reservePin(uint16_t pinNo, eOwnership ownership)
     // {
     //     if (pinNo > m_allPinsNbr)
     //     {
@@ -21,33 +21,30 @@ namespace hal::mcu {
     //     }
     //     else if(it->second == eOwnership::eUnique)
     //     {
-    //         return eErrors::eAlreadyReserved;
+    //          return eError::eAlreadyReserved;
     //     }
 
-    //     return eErrors::eOk;
+    //     return eError::eOk;
     // }
 
-error mcuManager::reserveResource(std::uint16_t id, IResource *reference)
-{
-    auto success = m_resourcesMap.emplace(id, reference);
-
-    if(success.second)
+    eError mcuManager::reserveResource(std::uint16_t id, std::shared_ptr<IResource> reference)
     {
-        return error::eOk;        
+        auto success = m_resourcesMap.emplace(id, reference);
+        if(success.second)
+        {
+            return eError::eOk;        
+        }
+        return eError::eAlreadyReserved;
     }
-    return error::eAlreadyReserved;
-}
 
-error mcuManager::getResource(std::uint16_t id, IResource *reference) 
-{
-    auto resource = m_resourcesMap.find(id);
-    if (resource != m_resourcesMap.end())
+    std::shared_ptr<IResource> mcuManager::getResource(std::uint16_t id) 
     {
-        reference = resource->second;
-        return error::eOk;
+        auto resource = m_resourcesMap.find(id);
+        if (resource != m_resourcesMap.end())
+        {
+            return resource->second;;
+        }
+        return nullptr;   
     }
-    
-    return error::eUninitialized;
-}
 
 } // hal::mcu
