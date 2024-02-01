@@ -9,7 +9,7 @@
 #include "gpioPort.h"
 
 
-namespace mcu::ST32L476::gpio {
+namespace mcu::gpio {
 
     using namespace hal::gpio;
     class gpioOutput : public hal::gpio::IGpioOutput //<GPIO_TypeDef>
@@ -29,10 +29,10 @@ namespace mcu::ST32L476::gpio {
     private:
         
         //reg specific, should be abstracted in future
-        mcu::ST32L476::gpio::gpioPort m_port;
+        mcu::gpio::gpioPort m_port;
         GPIO_TypeDef *m_regs;
 
         std::int8_t m_pinId;
 
     };
-} // mcu::ST32L476::gpio
+} // mcu::gpio

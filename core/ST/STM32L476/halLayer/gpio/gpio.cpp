@@ -5,7 +5,7 @@
 #include "gpio.h"
 
 
-namespace mcu::ST32L476::gpio
+namespace mcu::gpio
 {
     using namespace hal::gpio;
 
@@ -91,4 +91,4 @@ namespace mcu::ST32L476::gpio
         return eError::eOk;
     }
 
-} // ST32L476::gpio
+} // gpio

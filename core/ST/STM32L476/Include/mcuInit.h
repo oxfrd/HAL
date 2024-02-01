@@ -3,7 +3,7 @@
 
 #include "IMcu.h"
 
-namespace mcu::ST32L476{
+namespace mcu{
 
 enum class eMcuResources 
 {
@@ -13,4 +13,4 @@ enum class eMcuResources
 
 std::shared_ptr<hal::mcu::mcuManager> init();
 
-}   //mcu::ST32L476
+}   //mcu

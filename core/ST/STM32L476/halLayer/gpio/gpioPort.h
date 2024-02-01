@@ -8,7 +8,7 @@
 #include <cstdint>
 #include "IPort.h"
 
-namespace mcu::ST32L476::gpio {
+namespace mcu::gpio {
 
     class gpioPort : public hal::gpio::IPort<GPIO_TypeDef> {
     public:
