@@ -23,9 +23,10 @@ namespace hal::mcu {
     {
     public:
         // IMcu(uint16_t pinsNbr);
-        // eError reservePin(uint16_t pinNo, eOwnership ownership);
+        eError reservePin(uint16_t pinNo, eOwnership ownership);
     private:
         std::uint16_t m_allPinsNbr;
+        std::unordered_map<std::uint16_t, eOwnership> m_reservedPins;
     };
 
     class mcuManager : public IMcu
@@ -34,11 +35,12 @@ namespace hal::mcu {
         mcuManager() = default;
         eError reserveResource(std::uint16_t id, std::shared_ptr<IResource> reference);
         eError reserveResource(std::shared_ptr<IResource>);
+        eError reserveResourceWithPin(std::uint16_t id, std::shared_ptr<IResource> reference, 
+            eOwnership pinOwnership);
         std::shared_ptr<IResource> getResource(std::uint16_t id, std::shared_ptr<IResource> reference);
         std::shared_ptr<IResource> getResource(std::uint16_t id); 
         
     private:
-        // std::unordered_map<std::uint16_t, eOwnership> m_reservedPins;
         std::unordered_map<std::uint16_t, std::shared_ptr<IResource>> m_resourcesMap;
     };
 } // hal::mcu

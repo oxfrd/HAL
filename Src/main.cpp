@@ -29,8 +29,8 @@ static void delayMe(int ticks)
 
 int main()
 {
-    auto mcu = mcu::ST32L476::init();
-    using namespace mcu::ST32L476;
+    using namespace mcu;
+    auto mcu = init();
     
     std::shared_ptr<hal::gpio::IGpioOutput> gpio{nullptr};
     auto x = gpio->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_B2),mcu);

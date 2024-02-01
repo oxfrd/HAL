@@ -6,26 +6,35 @@
 
 
 namespace hal::mcu {
-    // eError IMcu::reservePin(uint16_t pinNo, eOwnership ownership)
-    // {
-    //     if (pinNo > m_allPinsNbr)
-    //     {
-    //         return eErrors::eNotExist;
-    //     }
+    eError IMcu::reservePin(std::uint16_t id, eOwnership pinOwnership)
+    {
+        auto resource = m_reservedPins.find(id);
+        if (resource == m_reservedPins.end())
+        {
+            auto result = m_reservedPins.insert({id, pinOwnership});
+            if(result.second == true)
+            {
+                return eError::eOk;
+            }
+            return eError::eFail;
+        }
 
-    //     auto it = m_reservedPins.find(pinNo);
+        if((pinOwnership == eOwnership::eUnique) ||
+           (resource->second == eOwnership::eUnique))
+        {
+            return eError::eAlreadyReserved;
+        }
 
-    //     if(it == m_reservedPins.end())
-    //     {
-    //         m_reservedPins.insert({pinNo, ownership});
-    //     }
-    //     else if(it->second == eOwnership::eUnique)
-    //     {
-    //          return eError::eAlreadyReserved;
-    //     }
-
-    //     return eError::eOk;
-    // }
+        if(resource->second == eOwnership::eShared)
+        {
+            auto result = m_reservedPins.insert({id, pinOwnership});
+            if(result.second == true)
+            {
+                return eError::eOk;
+            }
+        }
+        return eError::eFail;
+    }
 
     eError mcuManager::reserveResource(std::uint16_t id, std::shared_ptr<IResource> reference)
     {
@@ -37,6 +46,23 @@ namespace hal::mcu {
         return eError::eAlreadyReserved;
     }
 
+    eError mcuManager::reserveResourceWithPin(std::uint16_t id, std::shared_ptr<IResource> reference, 
+        eOwnership pinOwnership)
+    {
+        auto success = m_resourcesMap.emplace(id, reference);
+        if(success.second)
+        {
+            auto result = reservePin(id, pinOwnership);
+            if(result == eError::eFail)
+            {
+                auto resource = m_resourcesMap.find(id);
+                m_resourcesMap.erase(resource);
+            }
+            
+            return result;            
+        }
+        return eError::eAlreadyReserved;
+    }
     std::shared_ptr<IResource> mcuManager::getResource(std::uint16_t id) 
     {
         auto resource = m_resourcesMap.find(id);

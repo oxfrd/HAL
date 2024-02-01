@@ -13,7 +13,7 @@ void checkErr(eError err)
     }
 }
 
-namespace mcu::ST32L476{
+namespace mcu{
 
 std::shared_ptr<hal::mcu::mcuManager> init()
 {
@@ -34,4 +34,4 @@ std::shared_ptr<hal::mcu::mcuManager> init()
     return std::move(mcu);
 }
 
-}   //mcu::ST32L476
+}   //mcu

@@ -4,7 +4,7 @@
 
 #include "gpioPort.h"
 
-namespace mcu::ST32L476::gpio {
+namespace mcu::gpio {
 
     gpioPort::gpioPort(uint8_t portId):
     IPort(),
