@@ -3,6 +3,7 @@
 
 #include "IMcu.h"
 
+#define HSE_VALUE 32768000
 namespace mcu{
 
 enum class eMcuResources 

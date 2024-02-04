@@ -52,7 +52,9 @@
         "ranges": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "stm32l476xx.h": "c",
+        "stm32l4xx.h": "c"
     },
     "cmake.configureOnOpen": true,
     "cortex-debug.gdbPath": "/usr/bin/gdb-multiarch",
