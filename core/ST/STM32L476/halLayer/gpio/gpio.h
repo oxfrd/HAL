@@ -12,6 +12,10 @@
 namespace mcu::gpio {
 
     using namespace hal::gpio;
+    
+    /**
+     * @brief Class holding functionality of gpio output. 
+     */
     class gpioOutput : public hal::gpio::IGpioOutput //<GPIO_TypeDef>
     {
     public:

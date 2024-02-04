@@ -29,6 +29,11 @@ namespace hal::mcu {
         std::unordered_map<std::uint16_t, eOwnership> m_reservedPins;
     };
 
+    /**
+     * @brief Class used to hold and divide resources of microcontroller.
+     * 
+     * It allows to reserve components without collisions. 
+     */
     class mcuManager : public IMcu
     {
     public:
