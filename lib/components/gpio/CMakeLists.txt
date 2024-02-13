@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.25)
 
-add_library(GPIO 
+add_library(IGPIO 
         # IGpioOutput.cpp 
         IPort.cpp
         IGpio.cpp)
 
-target_link_libraries(GPIO PRIVATE MCU_RELATED MCU)
+target_link_libraries(IGPIO PRIVATE MCU_RELATED IMCU)
 
-target_include_directories(GPIO PUBLIC
+target_include_directories(IGPIO PUBLIC
         ${CMAKE_SOURCE_DIR}/lib/components/gpio
         ${CMAKE_SOURCE_DIR}/lib
 )

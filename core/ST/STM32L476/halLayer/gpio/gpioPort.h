@@ -10,11 +10,10 @@
 
 namespace mcu::gpio {
 
-    class gpioPort : public hal::gpio::IPort<GPIO_TypeDef> {
+    class gpioPort : public hal::gpio::IPort
+    {
     public:
-        explicit gpioPort(uint8_t portId);
-
-    protected:
+        explicit gpioPort(std::uint8_t portId);
         eError enableClk() override;
         eError disableClk() override;
     private:
@@ -23,7 +22,7 @@ namespace mcu::gpio {
         static constexpr std::uint32_t cPeriphBaseOffset = AHB2PERIPH_BASE;
         volatile std::uint32_t *m_RCCEnReg = &(RCC->AHB2ENR);
 
-        std::uint32_t m_id;
+        std::uint8_t m_id;
 
     };
 

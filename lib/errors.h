@@ -12,4 +12,5 @@ enum class eError
     eAlreadyReserved,
     eNotPermitted,
     eBusy,
+    eBadArgument,
 };

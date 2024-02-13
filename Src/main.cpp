@@ -9,12 +9,6 @@
 #include "mcuInit.h"
 #include "main.h"
 
-enum class cGPIOs
-{
-    ledRed,
-    ledGreen,
-};
-
 static void delayMe(int ticks)
 {
     int x = ticks;
@@ -27,38 +21,59 @@ static void delayMe(int ticks)
     }
 }
 
+static void func(std::shared_ptr<hal::mcu::mcuManager> x)
+{
+    using namespace mcu;
+
+    std::shared_ptr<gpio::gpioOutput> led{nullptr};
+    auto getter = led->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_B2), x);
+    if (getter.second == eError::eOk)
+    {
+        led = std::dynamic_pointer_cast<gpio::gpioOutput>(getter.first);
+    }
+
+    led->toggle();
+    delayMe(40);
+    led->toggle();
+    delayMe(40);
+    led->toggle();
+    delayMe(40);
+}
+
 int main()
 {
     using namespace mcu;
     auto mcu = init();
     
-    std::shared_ptr<hal::gpio::IGpioOutput> gpio{nullptr};
-    auto x = gpio->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_B2),mcu);
-    if (x.second == eError::eOk)
+    std::shared_ptr<gpio::gpioOutput> ledRed{nullptr};
+    auto getter = ledRed->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_B2),mcu);
+    if (getter.second == eError::eOk)
     {
-        gpio = std::move(x.first);
+        ledRed = std::dynamic_pointer_cast<gpio::gpioOutput>(getter.first);
     }
 
-    std::shared_ptr<hal::gpio::IGpioOutput> green{nullptr};
-    x = green->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_E8),mcu);
-    if (x.second == eError::eOk)
+    std::shared_ptr<gpio::gpioOutput> ledGreen{nullptr};
+    getter = ledGreen->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_E8),mcu);
+    if (getter.second == eError::eOk)
     {
-        green = std::move(x.first);
+        ledGreen = std::dynamic_pointer_cast<gpio::gpioOutput>(getter.first);
     }
     
     while (true)
     {
-        gpio->toggle();
-        green->toggle();
+        ledRed->toggle();
+        ledGreen->toggle();
         delayMe(10);
 
-        gpio->toggle();
-        green->toggle();
+        ledRed->toggle();
+        ledGreen->toggle();
 
         delayMe(40);
 
-        gpio->toggle();
-        green->toggle();
+        func(mcu);
+
+        ledRed->toggle();
+        ledGreen->toggle();
         delayMe(10);
     }
     
