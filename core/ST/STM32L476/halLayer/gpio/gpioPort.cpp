@@ -6,7 +6,7 @@
 
 namespace mcu::gpio {
 
-    gpioPort::gpioPort(uint8_t portId):
+    gpioPort::gpioPort(std::uint8_t portId):
     IPort(),
     m_id(portId)
     {

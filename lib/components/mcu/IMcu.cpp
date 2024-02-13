@@ -38,10 +38,15 @@ namespace hal::mcu {
 
     eError mcuManager::reserveResource(std::uint16_t id, std::shared_ptr<IResource> reference)
     {
+        if(reference == nullptr)
+        {
+            return eError::eBadArgument;
+        }
+        
         auto success = m_resourcesMap.emplace(id, reference);
         if(success.second)
         {
-            return eError::eOk;        
+            return eError::eOk;
         }
         return eError::eAlreadyReserved;
     }

@@ -8,6 +8,8 @@ namespace mcu{
 
 enum class eMcuResources 
 {
+    ePortB,
+    ePortE,
     eGPIO_E8,
     eGPIO_B2,
 };

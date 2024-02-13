@@ -3,19 +3,34 @@
 //
 
 #include "gpio.h"
+#include <cassert>
 
 
 namespace mcu::gpio
 {
-    using namespace hal::gpio;
-
-    gpioOutput::gpioOutput(std::uint8_t pinId, uint8_t portId, GPIO_TypeDef *regs):
+    gpioOutput::gpioOutput(std::uint8_t pinId, std::shared_ptr<gpioPort> port, GPIO_TypeDef *regs):
     IGpioOutput(),
-    m_port(gpioPort(portId)),
+    m_port(port),
     m_regs(regs),
     m_pinId(pinId)
     {
-        setMode(eMode::eOutput);
+        auto err = setMode(eMode::eOutput);
+        if (err != eError::eOk)
+        {
+            assert(0);
+        }
+        if (m_port == nullptr)
+        {
+            assert(0);   
+        } 
+        else
+        {
+            err = m_port->enableClk();
+            if (err != eError::eOk)
+            {
+                assert(0);
+            }
+        }
     }
 
     eError gpioOutput::on()

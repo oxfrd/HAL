@@ -7,10 +7,11 @@ namespace hal::gpio
         std::shared_ptr<hal::mcu::mcuManager> mcuMan)
     {
         std::pair<std::shared_ptr<IGpioOutput>, eError> retPair = {nullptr, eError::eFail};
+        
         auto res = mcuMan->getResource(id);
-        if (auto gpioOutput = std::dynamic_pointer_cast<hal::gpio::IGpioOutput>(res)) 
+        if (res != nullptr) 
         {
-            retPair.first = std::move(gpioOutput);
+            retPair.first = std::dynamic_pointer_cast<hal::gpio::IGpioOutput>(res);
             retPair.second = eError::eOk;
         }
         
