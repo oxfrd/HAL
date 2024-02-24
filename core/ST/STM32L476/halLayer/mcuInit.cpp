@@ -1,16 +1,24 @@
 //created by Oxfrd 8.11.2023
 
+#include <cassert>
+#include <chrono>
+
 #include "mcuInit.h"
 #include "IGpio.h"
 #include "gpio.h"
 #include "gpioPort.h"
-#include <cassert>
+#include "ITimer.h"
+#include "timer.h"
 
 void checkErr(eError err)
 {
     if(err != eError::eOk)
     {
         assert(0);
+        while (1)
+        {
+            asm("NOP");
+        }
     }
 }
 
@@ -50,6 +58,11 @@ std::shared_ptr<hal::mcu::mcuManager> init()
 
     gpio = std::make_shared<gpio::gpioOutput>(2, portB, GPIOB);
     err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eGPIO_B2), std::move(gpio));
+    checkErr(err);
+
+    hal::timer::period_t timing(5.0);
+    auto timer = std::make_shared<timer::countingTimer>(TIM2);//, timing);
+    // err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eTimer2), std::move(timer));
     checkErr(err);
 
     return std::move(mcu);

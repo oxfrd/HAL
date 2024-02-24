@@ -7,9 +7,9 @@
 #include "IMcu.h"
 #include "chrono"
 
-namespace hal::uart
+namespace hal::timer
 {
-    using std::chrono::duration<double> period_t;
+    using period_t = std::chrono::duration<double>;
      /**
     * @brief General microcontroller interface.
     *
@@ -23,8 +23,11 @@ namespace hal::uart
         std::pair<std::shared_ptr<ITimer>, eError> getPtr( 
             std::uint16_t id,
             std::shared_ptr<hal::mcu::mcuManager> mcuMan);
-    private:
-        virtual setPeriod(period_t period) = 0;
+        virtual eError setPeriod(period_t period) = 0;
+        virtual eError enable() = 0;
+        virtual eError disable() = 0;
+        virtual eError enableClk() = 0;
+
     };
 
-} //hal::uart
+} //hal::timer
