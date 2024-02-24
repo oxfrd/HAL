@@ -4,10 +4,16 @@ add_library(MCU_IMPLEMENTATION
         mcuInit.cpp
 )
 add_subdirectory(gpio)
+add_subdirectory(timer)
 
-target_link_libraries(MCU_IMPLEMENTATION PRIVATE HAL_MCU_LAYER MCU_RELATED 
-                        GPIO_IMPLEMENTATION)
+target_link_libraries(MCU_IMPLEMENTATION PRIVATE 
+                        HAL_MCU_LAYER 
+                        MCU_RELATED 
+                        GPIO_IMPLEMENTATION
+                        TIMER_IMPLEMENTATION )
 
 target_include_directories(MCU_IMPLEMENTATION 
         PRIVATE ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/Include
-        PUBLIC  ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/halLayer/gpio)
+        PUBLIC  ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/halLayer/gpio
+        PRIVATE  ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/halLayer/timer
+        )

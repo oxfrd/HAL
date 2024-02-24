@@ -6,22 +6,29 @@
 #include "ITimer.h"
 #include "stm32l476xx.h"
 
-namespace mcu::timer {
+#include <functional>
 
+namespace mcu::timer 
+{
     using namespace hal::timer;
-    
+    using timerReg_t = TIM_TypeDef*;
+
     /**
      * @brief Class holding functionality of timer output. 
      */
-    template<class funArg_t, class reg_t>
-    class timer : public hal::timer::ITimer
+    class countingTimer : public ITimer
     {
     public:
-        explicit timer(reg_t regs, period_t period, std::function<void(funArg_t)> execFunction);
+        explicit countingTimer(timerReg_t regs); //, period_t period);
+        eError setPeriod(period_t period) override;
+        eError enable() override;
+        eError disable() override;
+        eError enableClk() override;
+
     private:
         period_t m_period;
+        timerReg_t m_regs;
 
-        virtual setPeriod(period_t period) = 0;
-
+        eError setMode();
     };
-} // mcu::timer
+}  // namespace mcu::timer
