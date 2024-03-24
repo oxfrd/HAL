@@ -3,12 +3,11 @@
 #include <cassert>
 #include <chrono>
 
-#include "IGpio.h"
 #include "ITimer.h"
 
 #include "mcuInit.h"
-#include "gpio.h"
 #include "gpioPort.h"
+#include "gpioOutput.h"
 #include "timer.h"
 #include "timeInterrupt.h"
 

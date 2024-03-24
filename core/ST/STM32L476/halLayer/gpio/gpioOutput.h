@@ -3,8 +3,8 @@
 //
 #pragma once
 
-#include "IGpio.h"
 #include "stm32l476xx.h"
+#include "IGpioOutput.h"
 #include "components/gpio/IPort.h"
 #include "gpioPort.h"
 

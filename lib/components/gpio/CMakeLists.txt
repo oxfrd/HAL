@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 
 add_library(IGPIO 
-        # IGpioOutput.cpp 
+        IGpioOutput.cpp
         IPort.cpp
         IGpio.cpp)
 
