@@ -29,6 +29,7 @@ add_subdirectory(lib/components)
 file(GLOB_RECURSE SOURCES
         "core/ST/STM32L476/Startup/startup_stm32l476xx.s"gcc version 10.3.1 support map c++
         "${CMAKE_SOURCE_DIR}/Src/main.cpp"
+        "${CMAKE_SOURCE_DIR}/Src/delay.cpp"
         )
 
 set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/linker.ld)

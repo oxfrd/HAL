@@ -19,15 +19,17 @@ namespace mcu::timer
     class countingTimer : public ITimer
     {
     public:
-        explicit countingTimer(timerReg_t regs); //, period_t period);
+        explicit countingTimer(TIM_TypeDef* regs); //, period_t period);
         eError setPeriod(period_t period) override;
+        eError setPeriod();
         eError enable() override;
         eError disable() override;
         eError enableClk() override;
+        eError enableInterrupt() override; 
 
     private:
         period_t m_period;
-        timerReg_t m_regs;
+        TIM_TypeDef* m_regs;
 
         eError setMode();
     };

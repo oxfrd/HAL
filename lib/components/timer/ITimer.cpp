@@ -8,9 +8,9 @@ namespace hal::timer
     {
         std::pair<std::shared_ptr<ITimer>, eError> retPair = {nullptr, eError::eFail};
         auto res = mcuMan->getResource(id);
-        if (auto uart = std::dynamic_pointer_cast<hal::timer::ITimer>(res)) 
+        if (auto tim = std::dynamic_pointer_cast<hal::timer::ITimer>(res)) 
         {
-            retPair.first = std::move(uart);
+            retPair.first = std::move(tim);
             retPair.second = eError::eOk;
         }
         
