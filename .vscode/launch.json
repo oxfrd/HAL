@@ -23,7 +23,7 @@
                 "monitor reset"],
              "liveWatch": {
                  "enabled": true,
-                 "samplesPerSecond": 4
+                 "samplesPerSecond": 1
              },
             "stlinkPath": "/usr/bin",
             "runToEntryPoint": "true",

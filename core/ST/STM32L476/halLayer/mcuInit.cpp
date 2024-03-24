@@ -3,12 +3,14 @@
 #include <cassert>
 #include <chrono>
 
-#include "mcuInit.h"
 #include "IGpio.h"
+#include "ITimer.h"
+
+#include "mcuInit.h"
 #include "gpio.h"
 #include "gpioPort.h"
-#include "ITimer.h"
 #include "timer.h"
+#include "timeInterrupt.h"
 
 void checkErr(eError err)
 {
@@ -60,9 +62,23 @@ std::shared_ptr<hal::mcu::mcuManager> init()
     err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eGPIO_B2), std::move(gpio));
     checkErr(err);
 
-    hal::timer::period_t timing(5.0);
+    // hal::timer::period_t timing(5.0);
     auto timer = std::make_shared<timer::countingTimer>(TIM2);//, timing);
-    // err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eTimer2), std::move(timer));
+    err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eTimer2), std::move(timer));
+    checkErr(err);
+
+
+    std::shared_ptr<timer::countingTimer> tim2{nullptr};
+    {
+        auto timGetter = tim2->getPtr(static_cast<uint16_t>(eMcuResources::eTimer2), mcu);
+        if (timGetter.second == eError::eOk)
+        {
+            tim2 = std::dynamic_pointer_cast<timer::countingTimer>(timGetter.first);
+        }
+    }
+
+    auto interrupt = std::make_shared<interrupt::timeInterrupt>(TIM2_IRQn, tim2);
+    err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eIntTim2), std::move(interrupt));
     checkErr(err);
 
     return std::move(mcu);

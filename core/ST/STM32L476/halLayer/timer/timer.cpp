@@ -10,20 +10,27 @@ namespace mcu::timer
     using namespace hal::timer;
 
     countingTimer::countingTimer(
-        timerReg_t regs)://, period_t period):
+        TIM_TypeDef* regs)://, period_t period):
         m_regs(regs)
     {
         // setPeriod(5);
+        enableClk();
         setMode();
-        enable();
+        setPeriod();
+        // enable();
     }
 
-    eError countingTimer::setPeriod(period_t period) 
+    eError countingTimer::setPeriod(period_t per) 
     {
-        m_period = period;
+        return eError::eBusy;
+    }
+
+    eError countingTimer::setPeriod() 
+    {
+        // m_period = period;
         // Set prescaler and period
-        m_regs->PSC = 39999;   // Prescaler (APB1 = 40 MHz, wanted 1 kHz)
-        m_regs->ARR = 999;    // Period (1 kHz / 1 Hz = 1000)
+        m_regs->PSC = 399;   // Prescaler (APB1 = 40 MHz, wanted 1 kHz)
+        m_regs->ARR = 9;    // Period (1 kHz / 1 Hz = 1000)
 
         return eError::eOk;
     }
@@ -31,6 +38,7 @@ namespace mcu::timer
     eError countingTimer::enable()
     {
         m_regs->CR1 |= TIM_CR1_CEN;
+        while(!(m_regs->SR & (1<<0)))
         return eError::eOk;
     }
 
@@ -56,4 +64,10 @@ namespace mcu::timer
         return eError::eOk;
     }
 
+    eError mcu::timer::countingTimer::enableInterrupt() 
+    {
+        m_regs->DIER |= TIM_DIER_UIE;
+        
+        return eError::eOk;
+    }
 } // timer

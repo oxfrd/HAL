@@ -6,5 +6,6 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/lib/components/mcu)
 add_subdirectory(${CMAKE_SOURCE_DIR}/lib/components/gpio)
 add_subdirectory(${CMAKE_SOURCE_DIR}/lib/components/uart)
 add_subdirectory(${CMAKE_SOURCE_DIR}/lib/components/timer)
+add_subdirectory(${CMAKE_SOURCE_DIR}/lib/components/interrupt)
 
-target_link_libraries(HAL_MCU_LAYER PUBLIC MCU_RELATED IMCU IGPIO IUART ITIMER)
+target_link_libraries(HAL_MCU_LAYER PUBLIC MCU_RELATED IMCU IGPIO IUART ITIMER IINTERRUPT)

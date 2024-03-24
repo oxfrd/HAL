@@ -27,7 +27,7 @@ namespace hal::timer
         virtual eError enable() = 0;
         virtual eError disable() = 0;
         virtual eError enableClk() = 0;
-
+        virtual eError enableInterrupt() = 0; 
     };
 
 } //hal::timer
