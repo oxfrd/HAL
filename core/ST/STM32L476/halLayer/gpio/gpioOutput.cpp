@@ -2,7 +2,7 @@
 // Created by oxford on 20.09.23.
 //
 
-#include "gpio.h"
+#include "gpioOutput.h"
 #include <cassert>
 
 

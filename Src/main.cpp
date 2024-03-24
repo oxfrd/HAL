@@ -3,8 +3,7 @@
 //
 #include <vector>
 #include "stm32l476xx.h"
-#include "IGpio.h"
-#include "gpio.h"
+#include "gpioOutput.h"
 #include "IComponent.h"
 #include "mcuInit.h"
 #include "main.h"
