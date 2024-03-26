@@ -14,6 +14,8 @@ enum class eMcuResources
     eGPIO_B2,
     eTimer2,
     eIntTim2,
+    ePortA,
+    eGPIO_A1,
 };
 
 std::shared_ptr<hal::mcu::mcuManager> init();

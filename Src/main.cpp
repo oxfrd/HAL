@@ -9,6 +9,7 @@
 #include "main.h"
 #include "timeInterrupt.h"
 #include "delay.h"
+#include <gpioInput.h>
 
 static void errHandler()
 {
@@ -18,24 +19,24 @@ static void errHandler()
     }
 }
 
-static void func(std::shared_ptr<hal::mcu::mcuManager> x)
-{
-    using namespace mcu;
+// static void func(std::shared_ptr<hal::mcu::mcuManager> x)
+// {
+//     using namespace mcu;
 
-    std::shared_ptr<gpio::gpioOutput> led{nullptr};
-    auto getter = led->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_B2), x);
-    if (getter.second == eError::eOk)
-    {
-        led = std::dynamic_pointer_cast<gpio::gpioOutput>(getter.first);
-    }
+//     std::shared_ptr<gpio::gpioOutput> led{nullptr};
+//     auto getter = led->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_B2), x);
+//     if (getter.second == eError::eOk)
+//     {
+//         led = std::dynamic_pointer_cast<gpio::gpioOutput>(getter.first);
+//     }
 
-    led->toggle();
-    delayMe(40);
-    led->toggle();
-    delayMe(40);
-    led->toggle();
-    delayMe(40);
-}
+//     led->toggle();
+//     delayMe(40);
+//     led->toggle();
+//     delayMe(40);
+//     led->toggle();
+//     delayMe(40);
+// }
 
 int main()
 {
@@ -60,6 +61,15 @@ int main()
         } else { errHandler();}
     }
     
+    // std::shared_ptr<gpio::gpioInput> button{nullptr};
+    // {
+    //     auto getter = ledGreen->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_E8),mcu);
+    //     if (getter.second == eError::eOk)
+    //     {
+    //         button = std::dynamic_pointer_cast<gpio::gpioInput>(getter.first);
+    //     } else { errHandler();}
+    // }
+
     std::shared_ptr<interrupt::timeInterrupt> interrupt{nullptr};
     {
         auto getter = interrupt->getPtr(static_cast<uint16_t>(eMcuResources::eIntTim2),mcu);
@@ -73,21 +83,12 @@ int main()
 
     while (true)
     {
-        constexpr std::uint32_t x{500};
-        ledRed->toggle();
-        // ledGreen->toggle();
-        delayMe(x);
-
-        ledRed->toggle();
-        // ledGreen->toggle();
-
-        delayMe(500);
-
-        // func(mcu);
-
-        ledRed->toggle();
-        // ledGreen->toggle();
-        delayMe(x);
+        // while()
+        // {
+            constexpr std::uint32_t x{500};
+            ledRed->toggle();
+            delayMe(x);
+        // }
     }
     
     return 0;
