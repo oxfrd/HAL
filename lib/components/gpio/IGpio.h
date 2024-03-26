@@ -37,9 +37,4 @@ namespace hal::gpio
         eReserved,
     };
 
-    class IGpioInput
-    {
-    public:
-        virtual eError getState();
-    };
 }

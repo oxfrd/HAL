@@ -21,6 +21,8 @@ namespace hal::gpio {
         std::pair<std::shared_ptr<IPort>, eError> getPtr( 
             std::uint16_t id,
             std::shared_ptr<hal::mcu::mcuManager> mcuMan);
+    protected:
+        virtual eError setPinMode(hal::gpio::eMode mode, std::uint32_t pinId) = 0;
     };
 
 } //hal::gpio
