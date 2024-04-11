@@ -5,7 +5,8 @@
 #include "IPort.h"
 
 namespace hal::gpio {
-    std::pair<std::shared_ptr<IPort>, eError> IPort::getPtr(
+    template<class regType>
+    std::pair<std::shared_ptr<IPort<regType>>, eError> IPort<regType>::getPtr(
         std::uint16_t id,
         std::shared_ptr<hal::mcu::mcuManager> mcuMan)
     {
@@ -14,7 +15,7 @@ namespace hal::gpio {
         auto res = mcuMan->getResource(id);
         if (res != nullptr) 
         {
-            retPair.first = std::dynamic_pointer_cast<hal::gpio::IPort>(res);
+            retPair.first = std::dynamic_pointer_cast<hal::gpio::IPort<regType>>(res);
             retPair.second = eError::eOk;
         }
         

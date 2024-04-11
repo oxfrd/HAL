@@ -10,14 +10,6 @@
 
 namespace hal::gpio
 {
-    enum class eMode
-    {
-        eInput,
-        eOutput,
-        eAlternateFun,
-        eAnalog,
-    };
-
     enum class eSpeed
     {
         eVeryLow,

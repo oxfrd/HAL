@@ -14,18 +14,19 @@ namespace mcu::gpio
     m_regs(regs),
     m_pinId(pinId)
     {
-        auto err = setMode(eMode::eOutput);
-        if (err != eError::eOk)
-        {
-            assert(0);
-        }
         if (m_port == nullptr)
         {
             assert(0);   
         } 
         else
         {
-            err = m_port->enableClk();
+            auto err = m_port->enableClk();
+            if (err != eError::eOk)
+            {
+                assert(0);
+            }
+
+            err = m_port->setPinMode(eMode::eOutput, m_pinId);
             if (err != eError::eOk)
             {
                 assert(0);
@@ -98,12 +99,4 @@ namespace mcu::gpio
         }
         return err;
     }
-
-    eError gpioOutput::setMode(eMode mode)
-    {
-        const auto pinOffset{2 * m_pinId};
-        m_regs->MODER = (static_cast<uint32_t>(mode) << pinOffset);
-        return eError::eOk;
-    }
-
-} // gpio
+} // namespace gpio

@@ -27,8 +27,11 @@ namespace mcu::gpio {
     
     eError gpioPort::setPinMode(hal::gpio::eMode mode, std::uint32_t pinId)
     {
+        constexpr std::uint32_t cAllModeBits{3}; 
         const auto pinOffset{2 * pinId};
-        m_regs->MODER = (static_cast<uint32_t>(mode) << pinOffset);
+
+        m_regs->MODER &= ~(cAllModeBits << pinOffset);
+        m_regs->MODER |= (static_cast<uint32_t>(mode) << pinOffset);
         return eError::eOk;
     }
 }
