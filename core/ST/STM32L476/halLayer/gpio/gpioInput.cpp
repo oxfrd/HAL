@@ -19,19 +19,19 @@ namespace mcu::gpio
         } 
         else
         {
-            auto err = m_port->setPinMode(eMode::eInput, m_pinId);
+            auto err = m_port->enableClk();
             if (err != eError::eOk)
             {
                 assert(0);
             }
 
-            err = m_port->enableClk();
+            err = m_port->setPinMode(eMode::eInput, m_pinId);
             if (err != eError::eOk)
             {
                 assert(0);
             }
-
-            m_regs = 
+            
+            // TODO: m_regs = 
         }
     }
 

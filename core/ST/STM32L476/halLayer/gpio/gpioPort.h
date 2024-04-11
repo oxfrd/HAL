@@ -7,18 +7,17 @@
 
 #include <cstdint>
 #include "IPort.h"
-#include "IGpio.h"
 
 namespace mcu::gpio {
 
-    class gpioPort : public hal::gpio::IPort
+    class gpioPort : public hal::gpio::IPort<GPIO_TypeDef>
     {
     public:
         explicit gpioPort(std::uint8_t portId);
         eError enableClk() override;
         eError disableClk() override;
-    protected:
         eError setPinMode(hal::gpio::eMode mode, std::uint32_t pinId) override;
+        std::shared_ptr<GPIO_TypeDef> giveReg() override;
     private:
         //reg specific, should be abstracted in future
         static constexpr uint32_t cPortSizeInMem = 0x400;

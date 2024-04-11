@@ -29,7 +29,6 @@ namespace mcu::gpio {
         eError setSpeed(eSpeed speed) override final;
         eError setTermination(eTermination type) override final;
         eError lockConfiguration() override final;
-        eError setMode(eMode) override final;
     private:
         
         //reg specific, should be abstracted in future
