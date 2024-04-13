@@ -10,23 +10,24 @@
 
 namespace mcu::gpio {
 
-    class gpioPort : public hal::gpio::IPort<GPIO_TypeDef>
+    class gpioPort : public hal::gpio::IPort
     {
     public:
         explicit gpioPort(std::uint8_t portId);
         eError enableClk() override;
         eError disableClk() override;
         eError setPinMode(hal::gpio::eMode mode, std::uint32_t pinId) override;
-        std::shared_ptr<GPIO_TypeDef> giveReg() override;
+        void* giveReg() override;
     private:
         //reg specific, should be abstracted in future
+        #define cFirstGpioPort GPIOA
         static constexpr uint32_t cPortSizeInMem = 0x400;
         static constexpr std::uint32_t cPeriphBaseOffset = AHB2PERIPH_BASE;
+
         volatile std::uint32_t *m_RCCEnReg = &(RCC->AHB2ENR);
-        GPIO_TypeDef *m_regs;
+        GPIO_TypeDef* m_regs;
         
         std::uint8_t m_id;
-
     };
 
 }   //namespace mcu::gpio
