@@ -20,7 +20,6 @@ namespace hal::gpio
     /** @brief Class representing GPIO port.
     *
     * The IPort class is used for managing GPIO port with specified identifier. */
-    template<class regType>
     class IPort : public IResource
     {
     public:
@@ -31,6 +30,6 @@ namespace hal::gpio
             std::uint16_t id,
             std::shared_ptr<hal::mcu::mcuManager> mcuMan);
         virtual eError setPinMode(eMode mode, std::uint32_t pinId) = 0;
-        virtual std::shared_ptr<regType> giveReg() = 0;
+        virtual void* giveReg() = 0;
     };
-} //namespace hal::gpio
+}  // namespace hal::gpio

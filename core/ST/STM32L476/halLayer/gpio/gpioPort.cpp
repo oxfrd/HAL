@@ -4,12 +4,13 @@
 
 #include "gpioPort.h"
 
-namespace mcu::gpio {
-
+namespace mcu::gpio 
+{
     gpioPort::gpioPort(std::uint8_t portId):
     IPort(),
     m_id(portId)
     {
+        m_regs = cFirstGpioPort + (cPortSizeInMem * m_id);
         enableClk();
     }
 
@@ -34,4 +35,9 @@ namespace mcu::gpio {
         m_regs->MODER |= (static_cast<uint32_t>(mode) << pinOffset);
         return eError::eOk;
     }
-}
+
+    void* gpioPort::giveReg() 
+    {
+      return m_regs;
+    }
+}  // namespace mcu::gpio
