@@ -8,10 +8,9 @@
 
 namespace mcu::gpio
 {
-    gpioOutput::gpioOutput(std::uint8_t pinId, std::shared_ptr<gpioPort> port, GPIO_TypeDef *regs):
+    gpioOutput::gpioOutput(std::uint8_t pinId, std::shared_ptr<gpioPort> port):
     IGpioOutput(),
     m_port(port),
-    m_regs(regs),
     m_pinId(pinId)
     {
         if (m_port == nullptr)
@@ -31,6 +30,8 @@ namespace mcu::gpio
             {
                 assert(0);
             }
+            auto portReg = m_port->giveReg();
+            m_regs = reinterpret_cast<GPIO_TypeDef*>(portReg);
         }
     }
 

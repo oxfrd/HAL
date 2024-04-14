@@ -16,10 +16,10 @@ namespace mcu::gpio {
     /**
      * @brief Class holding functionality of gpio output. 
      */
-    class gpioOutput : public hal::gpio::IGpioOutput //<GPIO_TypeDef>
+    class gpioOutput : public hal::gpio::IGpioOutput
     {
     public:
-        explicit gpioOutput(std::uint8_t pinId, std::shared_ptr<gpioPort> port, GPIO_TypeDef *regs);
+        explicit gpioOutput(std::uint8_t pinId, std::shared_ptr<gpioPort> port);
         eError off() override final;
         eError on() override final;
         eError toggle() override final;

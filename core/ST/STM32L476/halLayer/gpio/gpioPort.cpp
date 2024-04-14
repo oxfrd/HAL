@@ -10,7 +10,8 @@ namespace mcu::gpio
     IPort(),
     m_id(portId)
     {
-        m_regs = cFirstGpioPort + (cPortSizeInMem * m_id);
+        m_regs = reinterpret_cast<GPIO_TypeDef*>
+                (reinterpret_cast<uintptr_t>(cFirstGpioPort) + (cPortSizeInMem * m_id));
         enableClk();
     }
 
@@ -30,7 +31,7 @@ namespace mcu::gpio
     {
         constexpr std::uint32_t cAllModeBits{3}; 
         const auto pinOffset{2 * pinId};
-
+        GPIO_TypeDef *defg = cFirstGpioPort;
         m_regs->MODER &= ~(cAllModeBits << pinOffset);
         m_regs->MODER |= (static_cast<uint32_t>(mode) << pinOffset);
         return eError::eOk;
