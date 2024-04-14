@@ -56,25 +56,25 @@ std::shared_ptr<hal::mcu::mcuManager> init()
         }
     }
 
-    auto portA = std::make_shared<mcu::gpio::gpioPort>(mcu::gpio::gpioPort(0));
-    err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::ePortA),std::move(portA));
-    checkErr(err);
-    {
-        auto getter = portA->getPtr(static_cast<uint16_t>(eMcuResources::ePortA),mcu);
-        if (getter.second == eError::eOk)
-        {
-            portA = std::dynamic_pointer_cast<mcu::gpio::gpioPort>(getter.first);
-        }
-    }
+    // auto portA = std::make_shared<mcu::gpio::gpioPort>(mcu::gpio::gpioPort(0));
+    // err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::ePortA),std::move(portA));
+    // checkErr(err);
+    // {
+    //     auto getter = portA->getPtr(static_cast<uint16_t>(eMcuResources::ePortA),mcu);
+    //     if (getter.second == eError::eOk)
+    //     {
+    //         portA = std::dynamic_pointer_cast<mcu::gpio::gpioPort>(getter.first);
+    //     }
+    // }
 
     {
-        auto gpio = std::make_shared<gpio::gpioOutput>(8, portE, GPIOE);
+        auto gpio = std::make_shared<gpio::gpioOutput>(8, portE);
         err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eGPIO_E8),std::move(gpio));
         checkErr(err);
     }
 
     {
-        auto gpio = std::make_shared<gpio::gpioOutput>(2, portB, GPIOB);
+        auto gpio = std::make_shared<gpio::gpioOutput>(2, portB);
         err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eGPIO_B2), std::move(gpio));
         checkErr(err);
     }

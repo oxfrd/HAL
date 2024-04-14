@@ -21,7 +21,7 @@ namespace mcu::gpio {
     private:
         //reg specific, should be abstracted in future
         #define cFirstGpioPort GPIOA
-        static constexpr uint32_t cPortSizeInMem = 0x400;
+        static constexpr uint32_t cPortSizeInMem = 0x400UL;
         static constexpr std::uint32_t cPeriphBaseOffset = AHB2PERIPH_BASE;
 
         volatile std::uint32_t *m_RCCEnReg = &(RCC->AHB2ENR);

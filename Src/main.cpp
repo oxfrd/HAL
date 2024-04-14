@@ -82,13 +82,11 @@ int main()
     interrupt->enable();
 
     while (true)
-    {
-        // while()
-        // {
-            constexpr std::uint32_t x{500};
-            ledRed->toggle();
-            delayMe(x);
-        // }
+    {    
+        constexpr std::uint32_t x{500};
+        ledRed->toggle();
+        ledGreen->toggle();
+        delayMe(x);
     }
     
     return 0;
