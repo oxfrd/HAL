@@ -23,7 +23,7 @@ namespace hal::gpio
 
     enum class eTermination
     {
-        eNone,
+        eFloating,
         ePullUp,
         ePullDown,
         eReserved,

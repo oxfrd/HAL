@@ -16,7 +16,11 @@ namespace mcu
         eTimer2,
         eIntTim2,
         ePortA,
+        eGPIO_A0,
         eGPIO_A1,
+        eGPIO_A2,
+        eGPIO_A3,
+        eGPIO_A5,
     };
 
     std::shared_ptr<hal::mcu::mcuManager> init();

@@ -61,15 +61,50 @@ int main()
         } else { errHandler();}
     }
     
-    // std::shared_ptr<gpio::gpioInput> button{nullptr};
-    // {
-    //     auto getter = ledGreen->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_E8),mcu);
-    //     if (getter.second == eError::eOk)
-    //     {
-    //         button = std::dynamic_pointer_cast<gpio::gpioInput>(getter.first);
-    //     } else { errHandler();}
-    // }
+    std::shared_ptr<gpio::gpioInput> A0{nullptr};
+    {
+        auto getter = A0->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_A0),mcu);
+        if (getter.second == eError::eOk)
+        {
+            A0 = std::dynamic_pointer_cast<gpio::gpioInput>(getter.first);
+        } else { errHandler();}
+    }
 
+    std::shared_ptr<gpio::gpioInput> A1{nullptr};
+    {
+        auto getter = A1->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_A1),mcu);
+        if (getter.second == eError::eOk)
+        {
+            A1 = std::dynamic_pointer_cast<gpio::gpioInput>(getter.first);
+        } else { errHandler();}
+    }
+    
+    std::shared_ptr<gpio::gpioInput> A2{nullptr};
+    {
+        auto getter = A2->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_A2),mcu);
+        if (getter.second == eError::eOk)
+        {
+            A2 = std::dynamic_pointer_cast<gpio::gpioInput>(getter.first);
+        } else { errHandler();}
+    }
+    
+    std::shared_ptr<gpio::gpioInput> A3{nullptr};
+    {
+        auto getter = A3->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_A3),mcu);
+        if (getter.second == eError::eOk)
+        {
+            A3 = std::dynamic_pointer_cast<gpio::gpioInput>(getter.first);
+        } else { errHandler();}
+    }
+    
+    std::shared_ptr<gpio::gpioInput> A5{nullptr};
+    {
+        auto getter = A5->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_A5),mcu);
+        if (getter.second == eError::eOk)
+        {
+            A5 = std::dynamic_pointer_cast<gpio::gpioInput>(getter.first);
+        } else { errHandler();}
+    }
     std::shared_ptr<interrupt::timeInterrupt> interrupt{nullptr};
     {
         auto getter = interrupt->getPtr(static_cast<uint16_t>(eMcuResources::eIntTim2),mcu);
@@ -81,13 +116,28 @@ int main()
 
     interrupt->enable();
 
-    while (true)
-    {    
-        constexpr std::uint32_t x{500};
-        ledRed->toggle();
-        ledGreen->toggle();
-        delayMe(x);
-    }
+    auto a0State = false;
+    auto a1State = false;
+    auto a2State = false;
+    auto a3State = false;
+    auto a5State = false;
     
+    while (true)
+    {
+        a0State = A0->getState();
+        a1State = A1->getState();
+        a2State = A2->getState();
+        a3State = A3->getState();
+        a5State = A5->getState();
+        
+        while(a0State || a1State || a2State || a3State || a5State)
+        {
+            constexpr std::uint32_t x{500};
+            ledRed->toggle();
+            ledGreen->toggle();
+            delayMe(x);
+            break;
+        }
+    }
     return 0;
 }
