@@ -19,13 +19,13 @@ namespace mcu::gpio {
     class gpioOutput : public hal::gpio::IGpioOutput
     {
     public:
-        explicit gpioOutput(std::uint8_t pinId, std::shared_ptr<gpioPort> port);
+        explicit gpioOutput(std::uint8_t pinId, std::shared_ptr<gpioPort> port,
+            eTermination, bool lockConfig, eSpeed speed = eSpeed::eLow);
         eError off() override final;
         eError on() override final;
         eError toggle() override final;
         // eError deInit() override;
         // eError init() override;
-    protected:
         eError setSpeed(eSpeed speed) override final;
         eError setTermination(eTermination type) override final;
         eError lockConfiguration() override final;

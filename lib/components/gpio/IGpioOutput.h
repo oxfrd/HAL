@@ -18,7 +18,6 @@ namespace hal::gpio
         std::pair<std::shared_ptr<IGpioOutput>, eError> getPtr( 
             std::uint16_t id,
             std::shared_ptr<hal::mcu::mcuManager> mcuMan);
-    protected:
         virtual eError setSpeed(eSpeed speed) = 0;
         virtual eError setTermination(eTermination type) = 0;
         virtual eError lockConfiguration() = 0;
