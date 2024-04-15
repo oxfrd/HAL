@@ -1,6 +1,8 @@
 //
 // Created by oxford on 01.10.23.
 //
+#pragma once
+
 #include "errors.h"
 #include "IPort.h"
 #include "IGpio.h"
@@ -8,14 +10,12 @@
 
 namespace hal::gpio
 {
-    class IGpioOutput : public IResource
+    class IGpioInput : public IResource
     {
     public:
-        IGpioOutput() = default;
-        virtual eError on() = 0;
-        virtual eError off() = 0;
-        virtual eError toggle() = 0;
-        std::pair<std::shared_ptr<IGpioOutput>, eError> getPtr( 
+        IGpioInput() = default;
+        virtual bool getState() = 0;
+        std::pair<std::shared_ptr<IGpioInput>, eError> getPtr( 
             std::uint16_t id,
             std::shared_ptr<hal::mcu::mcuManager> mcuMan);
         virtual eError setSpeed(eSpeed speed) = 0;

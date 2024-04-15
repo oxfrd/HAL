@@ -4,18 +4,24 @@
 #include "IMcu.h"
 
 #define HSE_VALUE 32768000
-namespace mcu{
 
-enum class eMcuResources 
+namespace mcu
 {
-    ePortB,
-    ePortE,
-    eGPIO_E8,
-    eGPIO_B2,
-    eTimer2,
-    eIntTim2,
-};
+    enum class eMcuResources 
+    {
+        ePortB,
+        ePortE,
+        eGPIO_E8,
+        eGPIO_B2,
+        eTimer2,
+        eIntTim2,
+        ePortA,
+        eGPIO_A0,
+        eGPIO_A1,
+        eGPIO_A2,
+        eGPIO_A3,
+        eGPIO_A5,
+    };
 
-std::shared_ptr<hal::mcu::mcuManager> init();
-
+    std::shared_ptr<hal::mcu::mcuManager> init();
 }   //mcu

@@ -2,33 +2,43 @@
 // Created by oxford on 20.09.23.
 //
 
-#include "gpio.h"
+#include "gpioOutput.h"
 #include <cassert>
 
 
 namespace mcu::gpio
 {
-    gpioOutput::gpioOutput(std::uint8_t pinId, std::shared_ptr<gpioPort> port, GPIO_TypeDef *regs):
+    gpioOutput::gpioOutput(std::uint8_t pinId, std::shared_ptr<gpioPort> port,
+        eTermination, bool lockConfig, eSpeed speed):
     IGpioOutput(),
     m_port(port),
-    m_regs(regs),
     m_pinId(pinId)
     {
-        auto err = setMode(eMode::eOutput);
-        if (err != eError::eOk)
-        {
-            assert(0);
-        }
         if (m_port == nullptr)
         {
             assert(0);   
         } 
         else
         {
-            err = m_port->enableClk();
+            auto err = m_port->enableClk();
             if (err != eError::eOk)
             {
                 assert(0);
+            }
+
+            err = m_port->setPinMode(eMode::eOutput, m_pinId);
+            if (err != eError::eOk)
+            {
+                assert(0);
+            }
+            auto portReg = m_port->giveReg();
+            m_regs = reinterpret_cast<GPIO_TypeDef*>(portReg);
+
+            setTermination(eTermination::ePullUp);
+            setSpeed(speed);
+            if(lockConfig)
+            {
+                lockConfiguration();
             }
         }
     }
@@ -98,12 +108,4 @@ namespace mcu::gpio
         }
         return err;
     }
-
-    eError gpioOutput::setMode(eMode mode)
-    {
-        const auto pinOffset{2 * m_pinId};
-        m_regs->MODER = (static_cast<uint32_t>(mode) << pinOffset);
-        return eError::eOk;
-    }
-
-} // gpio
+} // namespace gpio

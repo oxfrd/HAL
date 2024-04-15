@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.25)
 
 add_library(IGPIO 
-        # IGpioOutput.cpp 
+        IGpio.cpp
         IPort.cpp
-        IGpio.cpp)
+        IGpioOutput.cpp
+        IGpioInput.cpp
+        )
 
 target_link_libraries(IGPIO PRIVATE MCU_RELATED IMCU)
 
