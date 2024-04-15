@@ -8,7 +8,8 @@
 
 namespace mcu::gpio
 {
-    gpioInput::gpioInput(std::uint32_t pinId, std::shared_ptr<gpioPort> port):
+    gpioInput::gpioInput(std::uint32_t pinId, std::shared_ptr<gpioPort> port,
+        eTermination termination, bool lockConfig, eSpeed speed):
     IGpioInput(),
     m_port(port),
     m_pinId(pinId)
@@ -25,13 +26,19 @@ namespace mcu::gpio
                 assert(0);
             }
 
-            err = m_port->setPinMode(eMode::eInput, m_pinId);
+            err = m_port->setPinMode(eMode::eOutput, m_pinId);
             if (err != eError::eOk)
             {
                 assert(0);
             }
-            
-            // TODO: m_regs = 
+            auto portReg = m_port->giveReg();
+            m_regs = reinterpret_cast<GPIO_TypeDef*>(portReg);
+            setTermination(eTermination::ePullUp);
+            setSpeed(speed);
+            if(lockConfig)
+            {
+                lockConfiguration();
+            }
         }
     }
 

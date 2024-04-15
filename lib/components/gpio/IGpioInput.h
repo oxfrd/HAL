@@ -1,6 +1,8 @@
 //
 // Created by oxford on 01.10.23.
 //
+#pragma once
+
 #include "errors.h"
 #include "IPort.h"
 #include "IGpio.h"
@@ -16,7 +18,6 @@ namespace hal::gpio
         std::pair<std::shared_ptr<IGpioInput>, eError> getPtr( 
             std::uint16_t id,
             std::shared_ptr<hal::mcu::mcuManager> mcuMan);
-    protected:
         virtual eError setSpeed(eSpeed speed) = 0;
         virtual eError setTermination(eTermination type) = 0;
         virtual eError lockConfiguration() = 0;
