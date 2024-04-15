@@ -69,13 +69,13 @@ std::shared_ptr<hal::mcu::mcuManager> init()
     }
 
     {
-        auto gpio = std::make_shared<gpio::gpioOutput>(8, portE);
+        auto gpio = std::make_shared<gpio::gpioOutput>(8, portE, hal::gpio::eTermination::ePullUp, false);
         err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eGPIO_E8),std::move(gpio));
         checkErr(err);
     }
 
     {
-        auto gpio = std::make_shared<gpio::gpioOutput>(2, portB);
+        auto gpio = std::make_shared<gpio::gpioOutput>(2, portB, hal::gpio::eTermination::ePullUp, false);
         err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eGPIO_B2), std::move(gpio));
         checkErr(err);
     }
