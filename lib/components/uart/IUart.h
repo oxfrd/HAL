@@ -23,22 +23,19 @@ namespace hal::uart
 
     enum class eBaudrate
     {
-        e9600,
-        e115200,
+        e9600 = 9600,
+        e115200 = 115200,
     };
 
     class IUart : public IResource
     {
     public:
         IUart() = default;
-        virtual eError send() = 0;
+        virtual eError send(std::vector<std::uint8_t> sendMe) = 0;
         virtual eError get() = 0;
         std::pair<std::shared_ptr<IUart>, eError> getPtr( 
             std::uint16_t id,
             std::shared_ptr<hal::mcu::mcuManager> mcuMan);
-    protected:
         virtual eError setBaudrate(eBaudrate speed) = 0;
-    private:
-        eBaudrate m_baudrate;
     };
 } //hal::uart

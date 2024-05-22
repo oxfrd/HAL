@@ -6,6 +6,7 @@ add_library(MCU_IMPLEMENTATION
 add_subdirectory(gpio)
 add_subdirectory(timer)
 add_subdirectory(interrupt)
+add_subdirectory(uart)
 
 target_link_libraries(MCU_IMPLEMENTATION PUBLIC 
                         HAL_MCU_LAYER 
@@ -13,6 +14,7 @@ target_link_libraries(MCU_IMPLEMENTATION PUBLIC
                         GPIO_IMPLEMENTATION
                         TIMER_IMPLEMENTATION 
                         INTERRUPT_IMPLEMENTATION
+                        UART_IMPLEMENTATION
                         )
 
 target_include_directories(MCU_IMPLEMENTATION 
@@ -20,4 +22,5 @@ target_include_directories(MCU_IMPLEMENTATION
         PUBLIC  ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/halLayer/gpio
         PRIVATE  ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/halLayer/timer
         PUBLIC  ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/halLayer/interrupt
+        PUBLIC  ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/halLayer/uart
         )
