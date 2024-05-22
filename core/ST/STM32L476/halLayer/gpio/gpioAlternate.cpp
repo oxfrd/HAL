@@ -30,6 +30,28 @@ namespace mcu::gpio
             {
                 assert(0);
             }
+            auto portReg = m_port->giveReg();
+            m_regs = reinterpret_cast<GPIO_TypeDef*>(portReg);
         }
     }
+
+    eError gpioAlternate::setFunctionality(std::uint32_t fun) 
+    { 
+        if(fun > static_cast<std::uint32_t>(eFunctionality::eLastIdx_EVENTOUT))
+        {
+            return eError::eBadArgument;
+        }
+
+        if(m_pinId <= cLastPinInAFR0)
+        {
+            m_regs->AFR[0] |= (fun << m_pinId*4);
+        }
+        else
+        {
+            m_regs->AFR[1] |= (fun << (m_pinId - 7)*4);
+        }
+
+        return eError::eOk; 
+    }
+
 } // namespace gpio

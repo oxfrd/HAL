@@ -31,7 +31,6 @@ namespace mcu::gpio
     {
         constexpr std::uint32_t cAllModeBits{3}; 
         const auto pinOffset{2 * pinId};
-        GPIO_TypeDef *defg = cFirstGpioPort;
         m_regs->MODER &= ~(cAllModeBits << pinOffset);
         m_regs->MODER |= (static_cast<uint32_t>(mode) << pinOffset);
         return eError::eOk;
