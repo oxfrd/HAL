@@ -17,5 +17,7 @@ namespace hal::gpio
         std::pair<std::shared_ptr<IGpioAlternate>, eError> getPtr( 
             std::uint16_t id,
             std::shared_ptr<hal::mcu::mcuManager> mcuMan);
+        virtual eError setFunctionality(std::uint32_t fun) = 0;
+            
     };
 } // namespace hal::gpio
