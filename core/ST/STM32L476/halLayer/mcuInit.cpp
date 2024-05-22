@@ -5,6 +5,7 @@
 
 #include "ITimer.h"
 #include "IGpio.h"
+#include "IUart.h"
 
 #include "mcuInit.h"
 #include "gpioPort.h"
@@ -12,6 +13,8 @@
 #include "timer.h"
 #include "timeInterrupt.h"
 #include "gpioInput.h"
+#include "gpioAlternate.h"
+#include "uart.h"
 
 void checkErr(eError err)
 {
@@ -65,6 +68,17 @@ std::shared_ptr<hal::mcu::mcuManager> init()
         if (getter.second == eError::eOk)
         {
             portA = std::dynamic_pointer_cast<mcu::gpio::gpioPort>(getter.first);
+        }
+    }
+
+    auto portD = std::make_shared<mcu::gpio::gpioPort>(mcu::gpio::gpioPort(3));
+    err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::ePortD),std::move(portD));
+    checkErr(err);
+    {
+        auto getter = portD->getPtr(static_cast<uint16_t>(eMcuResources::ePortD),mcu);
+        if (getter.second == eError::eOk)
+        {
+            portD = std::dynamic_pointer_cast<mcu::gpio::gpioPort>(getter.first);
         }
     }
 
@@ -128,6 +142,43 @@ std::shared_ptr<hal::mcu::mcuManager> init()
     auto interrupt = std::make_shared<interrupt::timeInterrupt>(TIM2_IRQn, tim2);
     err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eIntTim2), std::move(interrupt));
     checkErr(err);
+
+    {
+        auto altFunGpio = std::make_shared<gpio::gpioAlternate>(5, portD);
+        err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eGPIO_D5), std::move(altFunGpio));
+        checkErr(err);
+    }
+
+    {
+        auto altFunGpio = std::make_shared<gpio::gpioAlternate>(6, portD);
+        err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eGPIO_D6), std::move(altFunGpio));
+        checkErr(err);
+    }
+
+
+    std::shared_ptr<gpio::gpioAlternate> D5{nullptr};
+    {
+        auto getter = D5->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_D5),mcu);
+        if (getter.second == eError::eOk)
+        {
+            D5 = std::dynamic_pointer_cast<gpio::gpioAlternate>(getter.first);
+        } else { checkErr(getter.second);}
+    }
+
+    std::shared_ptr<gpio::gpioAlternate> D6{nullptr};
+    {
+        auto getter = D6->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_D6),mcu);
+        if (getter.second == eError::eOk)
+        {
+            D6 = std::dynamic_pointer_cast<gpio::gpioAlternate>(getter.first);
+        } else { checkErr(getter.second);}
+    }
+    
+    {
+        auto uart2 = std::make_shared<uart::uart>(USART2, D5, D6, hal::uart::eBaudrate::e9600);
+        err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eUART2), std::move(uart2));
+        checkErr(err);
+    }
 
     return std::move(mcu);
 }

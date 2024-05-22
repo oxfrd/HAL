@@ -4,6 +4,7 @@
 #pragma once
 
 #include "IUart.h"
+#include "gpioAlternate.h"
 #include "stm32l476xx.h"
 
 namespace mcu::uart {
@@ -13,15 +14,24 @@ namespace mcu::uart {
     /**
      * @brief Class holding functionality of uart output. 
      */
-    class uart : public hal::uart::IUart //<GPIO_TypeDef>
+    class uart : public hal::uart::IUart
     {
     public:
-        explicit uart(std::uint8_t pinId, uint8_t portId);
-        // eError deInit() override;
-        // eError init() override;
-    protected:
+        explicit uart(USART_TypeDef *uartRegs, std::shared_ptr<gpio::gpioAlternate> txPin, std::shared_ptr<gpio::gpioAlternate> rxPin, 
+            eBaudrate baudrate);
         eError setBaudrate(eBaudrate speed) override;
+        eError send(std::vector<std::uint8_t> sendMe) override;
+        eError get() override;
     private:
-
+        USART_TypeDef *m_regs;
+        eBaudrate m_baudRate;
+        std::shared_ptr<gpio::gpioAlternate> m_txPin; 
+        std::shared_ptr<gpio::gpioAlternate> m_rxPin;
+    
+        eError setProperPinsFunctionality();
+        eError enableClock(bool enable);
+        eError enableTransmit(bool enable);
+        eError enableReceive(bool enable);
+        eError enableUART(bool enable);
     };
 } // mcu::uart

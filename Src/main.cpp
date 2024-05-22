@@ -10,6 +10,7 @@
 #include "timeInterrupt.h"
 #include "delay.h"
 #include <gpioInput.h>
+#include "uart.h"
 
 static void errHandler()
 {
@@ -114,6 +115,15 @@ int main()
         } else { errHandler();}
     }
 
+    std::shared_ptr<uart::uart> uart{nullptr};
+    {
+        auto getter = uart->getPtr(static_cast<uint16_t>(eMcuResources::eUART2),mcu);
+        if (getter.second == eError::eOk)
+        {
+            uart = std::dynamic_pointer_cast<uart::uart>(getter.first);
+        } else { errHandler();}
+    }
+
     interrupt->enable();
 
     auto a0State = false;
@@ -122,6 +132,20 @@ int main()
     auto a3State = false;
     auto a5State = false;
     
+    std::vector<std::uint8_t> text;
+    text.push_back('y');
+    text.push_back('e');
+    text.push_back('e');
+    text.push_back('e');
+    text.push_back(' ');
+    text.push_back('b');
+    text.push_back('u');
+    text.push_back('d');
+    text.push_back('d');
+    text.push_back('y');
+    text.push_back(13);
+    text.push_back(10);
+
     while (true)
     {
         a0State = A0->getState();
@@ -129,11 +153,14 @@ int main()
         a2State = A2->getState();
         a3State = A3->getState();
         a5State = A5->getState();
-        
+        ledRed->toggle();
+
+        uart->send(text);
+        delayMe(250);
+
         while(a0State || a1State || a2State || a3State || a5State)
         {
             constexpr std::uint32_t x{500};
-            ledRed->toggle();
             ledGreen->toggle();
             delayMe(x);
             break;
