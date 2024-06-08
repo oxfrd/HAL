@@ -4,6 +4,7 @@ add_library(GPIO_IMPLEMENTATION
         gpioPort.cpp
         gpioOutput.cpp
         gpioInput.cpp
+        gpioAlternate.cpp
 )
 
 target_link_libraries(GPIO_IMPLEMENTATION PRIVATE HAL_MCU_LAYER MCU_RELATED)

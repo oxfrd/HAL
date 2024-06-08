@@ -23,11 +23,11 @@ message(STATUS "")
 
 add_definitions(-DDEBUG -D${MCU_MODEL})
 
+add_subdirectory(lib)
 add_subdirectory(core)
-add_subdirectory(lib/components)
 
 file(GLOB_RECURSE SOURCES
-        "core/ST/STM32L476/Startup/startup_stm32l476xx.s"gcc version 10.3.1 support map c++
+        "core/ST/STM32L476/Startup/startup_stm32l476xx.s" gcc version 10.3.1 support map c++
         "${CMAKE_SOURCE_DIR}/Src/main.cpp"
         "${CMAKE_SOURCE_DIR}/Src/delay.cpp"
         )
