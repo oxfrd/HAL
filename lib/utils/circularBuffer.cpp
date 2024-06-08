@@ -104,19 +104,19 @@ void circularBuffer::put(uint8_t item)
 	mFull = mHead == mTail;
 }
 
-uint8_t circularBuffer::pop()
+bool circularBuffer::pop(uint8_t *item)
 {
 	if(isEmpty())
 	{
-		return 0;
+		return false;
 	}
 
 	//Read data and advance the tail (we now have a free space)
-	auto val = mBuffer[mTail];
+	*item = mBuffer[mTail];
 	mFull = false;
 	mTail = (mTail + 1) % mSize;
 
-	return val;
+	return true;
 }
 
 void circularBuffer::clearAll() 
