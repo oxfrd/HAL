@@ -73,6 +73,7 @@
     "cmake.configureOnOpen": true,
     "cortex-debug.gdbPath": "/usr/bin/gdb-multiarch",
     "cortex-debug.stutilPath": "/usr/bin/st-util",
+    "editor.tabSize": 4,
     "files.exclude": {
         ".cache": true,
         ".idea": true,

@@ -21,6 +21,11 @@ namespace mcu
         eGPIO_A2,
         eGPIO_A3,
         eGPIO_A5,
+        ePortD,
+        eGPIO_D5,
+        eGPIO_D6,
+        eUART2,
+        eIntUART2,
     };
 
     std::shared_ptr<hal::mcu::mcuManager> init();

@@ -10,6 +10,7 @@
 #include "timeInterrupt.h"
 #include "delay.h"
 #include <gpioInput.h>
+#include "uart.h"
 
 static void errHandler()
 {
@@ -114,6 +115,15 @@ int main()
         } else { errHandler();}
     }
 
+    std::shared_ptr<uart::uart> uart{nullptr};
+    {
+        auto getter = uart->getPtr(static_cast<uint16_t>(eMcuResources::eUART2),mcu);
+        if (getter.second == eError::eOk)
+        {
+            uart = std::dynamic_pointer_cast<uart::uart>(getter.first);
+        } else { errHandler();}
+    }
+
     interrupt->enable();
 
     auto a0State = false;
@@ -122,6 +132,12 @@ int main()
     auto a3State = false;
     auto a5State = false;
     
+    uint8_t text[12] = "yee buddy\n\r";
+    uint8_t text2[11] = "lajtlejt\n\r";
+    bool tick = true;
+    std::uint8_t newByte = 0;
+    eError err = eError::eUninitialized;
+
     while (true)
     {
         a0State = A0->getState();
@@ -129,14 +145,33 @@ int main()
         a2State = A2->getState();
         a3State = A3->getState();
         a5State = A5->getState();
-        
+        ledRed->toggle();
+
+        if(tick)
+        {
+            uart->send(text, 12);
+            tick = false;
+        }
+        else
+        {
+            uart->send(text2, 11);
+            tick = true;
+        }
+
+        delayMe(250);
+
         while(a0State || a1State || a2State || a3State || a5State)
         {
             constexpr std::uint32_t x{500};
-            ledRed->toggle();
             ledGreen->toggle();
             delayMe(x);
             break;
+        }
+        err = uart->get(&newByte, 1);
+
+        if((err == eError::eOk) && (newByte == '5'))
+        {
+            ledGreen->toggle();
         }
     }
     return 0;

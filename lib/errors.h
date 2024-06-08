@@ -13,4 +13,5 @@ enum class eError
     eNotPermitted,
     eBusy,
     eBadArgument,
+    eEmpty,
 };

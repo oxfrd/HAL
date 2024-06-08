@@ -5,6 +5,7 @@ add_library(IGPIO
         IPort.cpp
         IGpioOutput.cpp
         IGpioInput.cpp
+        IGpioAlternate.cpp
         )
 
 target_link_libraries(IGPIO PRIVATE MCU_RELATED IMCU)
