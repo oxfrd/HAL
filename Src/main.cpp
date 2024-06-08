@@ -135,6 +135,7 @@ int main()
     uint8_t text[12] = "yee buddy\n\r";
     uint8_t text2[11] = "lajtlejt\n\r";
     bool tick = true;
+    std::uint8_t newByte = 0;
     
     while (true)
     {
@@ -164,6 +165,12 @@ int main()
             ledGreen->toggle();
             delayMe(x);
             break;
+        }
+        uart->get(&newByte, 1);
+
+        if(newByte == '5')
+        {
+            ledGreen->toggle();
         }
     }
     return 0;
