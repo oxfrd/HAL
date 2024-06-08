@@ -32,7 +32,7 @@ class circularBuffer
 public:
 	explicit circularBuffer(size_t size);
 	void put(uint8_t item);
-	uint8_t pop();
+	bool pop(uint8_t *item);
 	void clearAll();
 	bool isEmpty() const;
 	bool isFull() const;
