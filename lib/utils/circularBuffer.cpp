@@ -4,16 +4,96 @@
 
 #include "circularBuffer.h"
 
-template <class T>
-circularBuffer<T>::circularBuffer(size_t size):
-		mBuffer(std::unique_ptr<T[]>(new T[size])),
+// template <class T>
+// circularBuffer<T>::circularBuffer(size_t size):
+// 		mBuffer(std::unique_ptr<T[]>(new T[size])),
+// 		mSize(size) {}
+
+
+// template <class T>
+// void circularBuffer<T>::put(T item) 
+// {
+// 	mBuffer[mHead] = item;
+
+// 	if(mFull)
+// 	{
+// 		mTail = (mTail + 1) % mSize;
+// 	}
+
+// 	mHead = (mHead + 1) % mSize;
+// 	mFull = mHead == mTail;
+// }
+
+// template <class T>
+// T circularBuffer<T>::pop()
+// {
+// 	if(isEmpty())
+// 	{
+// 		return T();
+// 	}
+
+// 	//Read data and advance the tail (we now have a free space)
+// 	auto val = mBuffer[mTail];
+// 	mFull = false;
+// 	mTail = (mTail + 1) % mSize;
+
+// 	return val;
+// }
+
+// template <class T>
+// void circularBuffer<T>::clearAll() 
+// {
+// 	mHead = mTail;
+// 	mFull = false;
+// }
+
+// template <class T>
+// bool circularBuffer<T>::isEmpty() const 
+// {
+//   return (!mFull && (mHead == mTail));
+// }
+
+// template <class T>
+// bool circularBuffer<T>::isFull() const 
+// {
+//   	//If tail is ahead the head by 1, we are full
+// 	return mFull;
+// }
+
+// template <class T>
+// size_t circularBuffer<T>::capacity() const 
+// {
+//   return mSize;
+// }
+
+// template <class T>
+// size_t circularBuffer<T>::getDataSize() const 
+// {
+//   	size_t size = mSize;
+
+// 	if(!mFull)
+// 	{
+// 		if(mHead >= mTail)
+// 		{
+// 			size = mHead - mTail;
+// 		}
+// 		else
+// 		{
+// 			size = mSize + mHead - mTail;
+// 		}
+// 	}
+
+// 	return size;
+// }
+
+circularBuffer::circularBuffer(size_t size):
+		mBuffer(std::unique_ptr<uint8_t[]>(new uint8_t[size])),
 		mSize(size) {}
 
 
-template <class T>
-void circularBuffer<T>::put(T item) 
+void circularBuffer::put(uint8_t item) 
 {
-	mBuffer[head] = item;
+	mBuffer[mHead] = item;
 
 	if(mFull)
 	{
@@ -24,12 +104,11 @@ void circularBuffer<T>::put(T item)
 	mFull = mHead == mTail;
 }
 
-template <class T>
-T circularBuffer<T>::pop()
+uint8_t circularBuffer::pop()
 {
 	if(isEmpty())
 	{
-		return T();
+		return 0;
 	}
 
 	//Read data and advance the tail (we now have a free space)
@@ -40,39 +119,33 @@ T circularBuffer<T>::pop()
 	return val;
 }
 
-template <class T>
-void circularBuffer<T>::clearAll() 
+void circularBuffer::clearAll() 
 {
-	std::lock_guard<std::mutex> lock(mutex_);
 	mHead = mTail;
-	full_ = false;
+	mFull = false;
 }
 
-template <class T>
-bool circularBuffer<T>::isEmpty() const 
+bool circularBuffer::isEmpty() const 
 {
-  return (!full_ && (mHead == mTail));
+  return (!mFull && (mHead == mTail));
 }
 
-template <class T>
-bool circularBuffer<T>::isFull() const 
+bool circularBuffer::isFull() const 
 {
   	//If tail is ahead the head by 1, we are full
-	return full_;
+	return mFull;
 }
 
-template <class T>
-size_t circularBuffer<T>::capacity() const 
+size_t circularBuffer::capacity() const 
 {
   return mSize;
 }
 
-template <class T>
-size_t circularBuffer<T>::getDataSize() const 
+size_t circularBuffer::getDataSize() const 
 {
   	size_t size = mSize;
 
-	if(!full_)
+	if(!mFull)
 	{
 		if(mHead >= mTail)
 		{
