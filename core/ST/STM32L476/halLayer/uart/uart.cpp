@@ -5,69 +5,93 @@
 #include "uart.h"
 #include <cassert>
 
+std::array<circularBuffer*, 5> mgTxBuff;
 
 namespace mcu::uart
 {
     using namespace hal::uart;
 
     uart::uart(USART_TypeDef *uartRegs, std::shared_ptr<gpio::gpioAlternate> txPin, 
-                std::shared_ptr<gpio::gpioAlternate> rxPin, eBaudrate baudrate):
+                std::shared_ptr<gpio::gpioAlternate> rxPin,
+                std::shared_ptr<interrupt::interrupt> interrupt,
+                eBaudrate baudrate):
     IUart(),
-    m_regs(uartRegs),
-    m_txPin(txPin),
-    m_rxPin(rxPin)
+    mRegs(uartRegs),
+    mTxPin(txPin),
+    mRxPin(rxPin),
+    mInterrupt(interrupt),
+    mTxBuff(cTxBufferSize),
+    mRxBuff(cRxBufferSize)
     {
-        if(m_regs == nullptr)
+        if(mRegs == nullptr)
         {
             assert(0);
         }
 
-        if(m_txPin == nullptr)
+        if(mTxPin == nullptr)
         {
             assert(0);
         }
 
-        if(m_rxPin == nullptr)
+        if(mRxPin == nullptr)
         {
             assert(0);
         }
+
+        if(mInterrupt == nullptr)
+        {
+            assert(0);
+        }
+
         enableClock(true);
         setProperPinsFunctionality();
         setBaudrate(baudrate);
         enableTransmit(true);
         enableReceive(true);
         enableUART(true);
+        giveBuffer();
+        mInterrupt->enable();
     }
 
     void UART_SendChar(std::uint8_t c)
     {
-        while (!(USART2->ISR & USART_ISR_TXE));
-        USART2->TDR = c;
+        
     }
 
-    eError uart::send(std::vector<std::uint8_t> sendMe) 
+    eError uart::sendVector(std::vector<std::uint8_t> sendMe) 
     {
         for(const auto& sign : sendMe)
         {
-            UART_SendChar(sign);
+            mTxBuff.put(sign);
         }
+        enableTxInterrupts(true);
         return eError::eOk; 
     }
 
-    eError uart::get() { return eError::eFail; }
+    eError uart::send(uint8_t *buff, uint16_t len) 
+    {
+        for(uint8_t i = 0; i < len; i++)
+        {
+            mTxBuff.put(buff[i]);
+        }
+        enableTxInterrupts(true);
+        return eError::eOk;
+    }
+
+    eError uart::get(uint8_t *buff, uint16_t len) 
+    {
+        for(uint16_t i = 0; i<len; i++)
+        {
+            buff[i] = mRxBuff.pop(); 
+        }
+        return eError::eFail; 
+    }
 
     eError uart::setBaudrate(eBaudrate baudrate) 
     {
-        // // Choose alternate function AF7 for PA2 and PA3
-        // GPIOA->AFR[0] &= ~(GPIO_AFRL_AFSEL2_Msk | GPIO_AFRL_AFSEL3_Msk);
-        // GPIOA->AFR[0] |= (7 << GPIO_AFRL_AFSEL2_Pos) | (7 << GPIO_AFRL_AFSEL3_Pos);
-
-        m_baudRate = baudrate;
-        m_regs->BRR = SystemCoreClock / static_cast<std::uint32_t>(m_baudRate); // Assuming 9600 baud rate
-
-        // Enable USART2 interrupts (if needed)
-        // NVIC_EnableIRQ(USART2_IRQn);
-        return eError::eFail;
+        mBaudRate = baudrate;
+        mRegs->BRR = SystemCoreClock / static_cast<std::uint32_t>(mBaudRate);
+        return eError::eOk;
     }
 
     eError uart::enableClock(bool enable) 
@@ -87,11 +111,11 @@ namespace mcu::uart
     { 
         if(enable)
         {
-            m_regs->CR1 |= USART_CR1_TE;
+            mRegs->CR1 |= USART_CR1_TE;
         }
         else
         {
-            m_regs->CR1 &= ~(USART_CR1_TE);
+            mRegs->CR1 &= ~(USART_CR1_TE);
         }
         return eError::eOk;
     }
@@ -100,11 +124,11 @@ namespace mcu::uart
     { 
         if(enable)
         {
-            m_regs->CR1 |= USART_CR1_RE;
+            mRegs->CR1 |= USART_CR1_RE;
         }
         else
         {
-            m_regs->CR1 &= ~(USART_CR1_RE);
+            mRegs->CR1 &= ~(USART_CR1_RE);
         }
         return eError::eOk;
     }
@@ -113,30 +137,75 @@ namespace mcu::uart
     { 
         if(enable)
         {
-            m_regs->CR1 |= USART_CR1_UE;
+            mRegs->CR1 |= USART_CR1_UE;
         }
         else
         {
-            m_regs->CR1 &= ~(USART_CR1_UE);
+            mRegs->CR1 &= ~(USART_CR1_UE);
         }
         return eError::eOk;
     }
-    
-    eError uart::setProperPinsFunctionality()
+
+    eError uart::giveBuffer() 
     {
-        if( m_regs == USART1 ||
-            m_regs == USART2 ||
-            m_regs == USART3)
+        if (mRegs == USART1)        
         {
-            m_txPin->setFunctionality(static_cast<std::uint32_t>(mcu::gpio::eFunctionality::eUART1_2_3));
-            m_rxPin->setFunctionality(static_cast<std::uint32_t>(mcu::gpio::eFunctionality::eUART1_2_3));
+            mgTxBuff.at(0) = &mTxBuff;
+            return eError::eOk;
+        }
+        else if (mRegs == USART2)
+        {
+            mgTxBuff.at(1) = &mTxBuff;
+            return eError::eOk;
+        }
+        else if (mRegs == USART3)
+        {
+            mgTxBuff.at(2) = &mTxBuff;
+            return eError::eOk;
+        }
+        
+        return eError::eFail; 
+    }
+
+    eError uart::enableTxInterrupts(bool enable) 
+    {
+        if(enable)
+        {
+            mRegs->CR1 |= USART_CR1_TCIE;
         }
         else
         {
-            m_txPin->setFunctionality(static_cast<std::uint32_t>(mcu::gpio::eFunctionality::eUART4_5_LPUART1));
-            m_rxPin->setFunctionality(static_cast<std::uint32_t>(mcu::gpio::eFunctionality::eUART4_5_LPUART1));
+            mRegs->CR1 &= ~USART_CR1_TCIE;
+        }
+
+        return eError(); 
+    }
+
+    eError uart::setProperPinsFunctionality()
+    {
+        if( mRegs == USART1 ||
+            mRegs == USART2 ||
+            mRegs == USART3)
+        {
+            mTxPin->setFunctionality(static_cast<std::uint32_t>(mcu::gpio::eFunctionality::eUART1_2_3));
+            mRxPin->setFunctionality(static_cast<std::uint32_t>(mcu::gpio::eFunctionality::eUART1_2_3));
+        }
+        else
+        {
+            mTxPin->setFunctionality(static_cast<std::uint32_t>(mcu::gpio::eFunctionality::eUART4_5_LPUART1));
+            mRxPin->setFunctionality(static_cast<std::uint32_t>(mcu::gpio::eFunctionality::eUART4_5_LPUART1));
         }
 
         return eError::eOk;
     }
 } // uart
+
+__attribute__((interrupt)) void USART2_IRQHandler(void)
+{
+    while (!(USART2->ISR & USART_ISR_TXE));
+    USART2->TDR = mgTxBuff[1]->pop();
+    if(mgTxBuff[1]->isEmpty())
+    {
+        USART2->CR1 &= ~USART_CR1_TCIE;
+    }
+}

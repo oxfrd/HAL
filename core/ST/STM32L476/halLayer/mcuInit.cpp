@@ -15,6 +15,7 @@
 #include "gpioInput.h"
 #include "gpioAlternate.h"
 #include "uart.h"
+#include "interrupt.h"
 
 void checkErr(eError err)
 {
@@ -139,9 +140,11 @@ std::shared_ptr<hal::mcu::mcuManager> init()
         }
     }
 
-    auto interrupt = std::make_shared<interrupt::timeInterrupt>(TIM2_IRQn, tim2);
-    err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eIntTim2), std::move(interrupt));
-    checkErr(err);
+    {
+        auto interrupt = std::make_shared<interrupt::timeInterrupt>(TIM2_IRQn, tim2);
+        err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eIntTim2), std::move(interrupt));
+        checkErr(err);
+    }
 
     {
         auto altFunGpio = std::make_shared<gpio::gpioAlternate>(5, portD);
@@ -175,7 +178,22 @@ std::shared_ptr<hal::mcu::mcuManager> init()
     }
     
     {
-        auto uart2 = std::make_shared<uart::uart>(USART2, D5, D6, hal::uart::eBaudrate::e9600);
+        auto interrupt = std::make_shared<interrupt::interrupt>(USART2_IRQn);
+        err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eIntUART2), std::move(interrupt));
+        checkErr(err);
+    }
+
+    std::shared_ptr<interrupt::interrupt> uart2int{nullptr};
+    {
+        auto getter = uart2int->getPtr(static_cast<uint16_t>(eMcuResources::eIntUART2),mcu);
+        if (getter.second == eError::eOk)
+        {
+            uart2int = std::dynamic_pointer_cast<interrupt::interrupt>(getter.first);
+        } else { checkErr(getter.second);}
+    }
+
+    {
+        auto uart2 = std::make_shared<uart::uart>(USART2, D5, D6, uart2int, hal::uart::eBaudrate::e9600);
         err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eUART2), std::move(uart2));
         checkErr(err);
     }
