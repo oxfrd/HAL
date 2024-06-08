@@ -2,7 +2,7 @@
 // Created by oxford on 20.09.23.
 //
 
-#include "timeInterrupt.h"
+#include "interrupt.h"
 #include <cassert>
 
 
@@ -10,35 +10,27 @@ namespace mcu::interrupt
 {
     using namespace hal::interrupt;
 
-    timeInterrupt::timeInterrupt(IRQn_Type id, std::shared_ptr<hal::timer::ITimer> timer, 
-        std::uint32_t priority):
+    interrupt::interrupt(IRQn_Type id, std::uint32_t priority):
         m_id(id)
     {
-        assert(timer != nullptr);
-        m_timer = timer;
-
         setPriority(priority);
-        // enable();
-        // timer->enableInterrupt();
-        // timer->enable();
+        enable();
     }
 
-    eError timeInterrupt::enable() 
+    eError interrupt::enable() 
     {
         __enable_irq();
-        m_timer->enableInterrupt();
-        m_timer->enable(); 
         NVIC_EnableIRQ(m_id);
-        return eError::eOk; 
+        return eError::eOk;
     }
 
-    eError timeInterrupt::disable()
+    eError interrupt::disable()
     {
         NVIC_DisableIRQ(m_id);
         return eError::eOk;
     }
     
-    eError timeInterrupt::setPriority(std::uint32_t priority)
+    eError interrupt::setPriority(std::uint32_t priority)
     {
         if(m_id < 0) 
         {
@@ -60,4 +52,4 @@ namespace mcu::interrupt
         return eError::eOk;
     }
 
-} // timer
+} // interrupt
