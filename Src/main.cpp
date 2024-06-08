@@ -132,20 +132,10 @@ int main()
     auto a3State = false;
     auto a5State = false;
     
-    std::vector<std::uint8_t> text;
-    text.push_back('y');
-    text.push_back('e');
-    text.push_back('e');
-    text.push_back('e');
-    text.push_back(' ');
-    text.push_back('b');
-    text.push_back('u');
-    text.push_back('d');
-    text.push_back('d');
-    text.push_back('y');
-    text.push_back(13);
-    text.push_back(10);
-
+    uint8_t text[12] = "yee buddy\n\r";
+    uint8_t text2[11] = "lajtlejt\n\r";
+    bool tick = true;
+    
     while (true)
     {
         a0State = A0->getState();
@@ -155,7 +145,17 @@ int main()
         a5State = A5->getState();
         ledRed->toggle();
 
-        uart->send(text);
+        if(tick)
+        {
+            uart->send(text, 12);
+            tick = false;
+        }
+        else
+        {
+            uart->send(text2, 11);
+            tick = true;
+        }
+
         delayMe(250);
 
         while(a0State || a1State || a2State || a3State || a5State)
