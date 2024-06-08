@@ -6,6 +6,7 @@
 #include <cassert>
 
 std::array<circularBuffer*, 5> mgTxBuff;
+std::array<circularBuffer*, 5> mgRxBuff;
 
 namespace mcu::uart
 {
@@ -51,6 +52,7 @@ namespace mcu::uart
         enableUART(true);
         giveBuffer();
         mInterrupt->enable();
+        enableRxInterrupts(true);
     }
 
     void UART_SendChar(std::uint8_t c)
@@ -84,7 +86,7 @@ namespace mcu::uart
         {
             buff[i] = mRxBuff.pop(); 
         }
-        return eError::eFail; 
+        return eError::eOk; 
     }
 
     eError uart::setBaudrate(eBaudrate baudrate) 
@@ -151,16 +153,19 @@ namespace mcu::uart
         if (mRegs == USART1)        
         {
             mgTxBuff.at(0) = &mTxBuff;
+            mgRxBuff.at(0) = &mRxBuff;
             return eError::eOk;
         }
         else if (mRegs == USART2)
         {
             mgTxBuff.at(1) = &mTxBuff;
+            mgRxBuff.at(1) = &mRxBuff;
             return eError::eOk;
         }
         else if (mRegs == USART3)
         {
             mgTxBuff.at(2) = &mTxBuff;
+            mgRxBuff.at(2) = &mRxBuff;
             return eError::eOk;
         }
         
@@ -176,6 +181,20 @@ namespace mcu::uart
         else
         {
             mRegs->CR1 &= ~USART_CR1_TCIE;
+        }
+
+        return eError(); 
+    }
+
+    eError uart::enableRxInterrupts(bool enable) 
+    {
+        if(enable)
+        {
+            mRegs->CR1 |= USART_CR1_RXNEIE;
+        }
+        else
+        {
+            mRegs->CR1 &= ~USART_CR1_RXNEIE;
         }
 
         return eError(); 
@@ -202,10 +221,19 @@ namespace mcu::uart
 
 __attribute__((interrupt)) void USART2_IRQHandler(void)
 {
-    while (!(USART2->ISR & USART_ISR_TXE));
-    USART2->TDR = mgTxBuff[1]->pop();
-    if(mgTxBuff[1]->isEmpty())
+    // transmit
+    if (USART2->ISR & USART_ISR_TXE)
     {
-        USART2->CR1 &= ~USART_CR1_TCIE;
+        USART2->TDR = mgTxBuff[1]->pop();
+        if(mgTxBuff[1]->isEmpty())
+        {
+            USART2->CR1 &= ~USART_CR1_TCIE;
+        }
+    }
+
+    // receive
+    if (USART2->ISR & USART_ISR_RXNE) 
+    {
+        mgRxBuff[1]->put(USART2->RDR);
     }
 }

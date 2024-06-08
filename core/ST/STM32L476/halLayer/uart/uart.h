@@ -48,6 +48,7 @@ namespace mcu::uart {
         eError enableUART(bool enable);
         eError giveBuffer();
         eError enableTxInterrupts(bool enable);
+        eError enableRxInterrupts(bool enable); 
 
     };
 } // mcu::uart
