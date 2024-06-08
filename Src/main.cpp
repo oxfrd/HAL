@@ -136,7 +136,8 @@ int main()
     uint8_t text2[11] = "lajtlejt\n\r";
     bool tick = true;
     std::uint8_t newByte = 0;
-    
+    eError err = eError::eUninitialized;
+
     while (true)
     {
         a0State = A0->getState();
@@ -166,9 +167,9 @@ int main()
             delayMe(x);
             break;
         }
-        uart->get(&newByte, 1);
+        err = uart->get(&newByte, 1);
 
-        if(newByte == '5')
+        if((err == eError::eOk) && (newByte == '5'))
         {
             ledGreen->toggle();
         }

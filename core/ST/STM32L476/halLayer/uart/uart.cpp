@@ -84,9 +84,12 @@ namespace mcu::uart
     {
         for(uint16_t i = 0; i<len; i++)
         {
-            buff[i] = mRxBuff.pop(); 
+            if (not mgRxBuff[1]->pop(buff))
+            {
+                return eError::eEmpty;
+            }
         }
-        return eError::eOk; 
+        return eError::eOk;
     }
 
     eError uart::setBaudrate(eBaudrate baudrate) 
@@ -219,13 +222,20 @@ namespace mcu::uart
     }
 } // uart
 
+
+std::uint8_t acc8{0};
+bool isEmpty{false};
+
 __attribute__((interrupt)) void USART2_IRQHandler(void)
 {
     // transmit
     if (USART2->ISR & USART_ISR_TXE)
     {
-        USART2->TDR = mgTxBuff[1]->pop();
-        if(mgTxBuff[1]->isEmpty())
+        if (mgTxBuff[1]->pop(&acc8))
+        {
+            USART2->TDR = acc8;
+        }
+        else
         {
             USART2->CR1 &= ~USART_CR1_TCIE;
         }
