@@ -26,10 +26,10 @@ namespace mcu::i2c {
                 std::shared_ptr<interrupt::interrupt> interrupt,
                 eSpeedMode speed = eSpeedMode::eStd);
         eError setSpeed(eSpeedMode speed) override;
-        eError send(uint8_t *sendMe, uint16_t len) override;
-        eError sendVector(std::vector<std::uint8_t> sendMe) override; 
+        eError send(std::uint8_t addr, uint8_t *sendMe, uint16_t len) override;
+        eError sendVector(std::uint8_t addr, std::vector<std::uint8_t> sendMe) override; 
 
-        eError get(uint8_t *buff, uint16_t len) override;
+        eError get(std::uint8_t addr, uint8_t *buff, uint16_t len) override;
     private:
         static constexpr size_t cTxBufferSize{1000};
         static constexpr size_t cRxBufferSize{1000};

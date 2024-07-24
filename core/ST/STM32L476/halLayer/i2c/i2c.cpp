@@ -5,8 +5,8 @@
 #include "i2c.h"
 #include <cassert>
 
-std::array<circularBuffer*, cAllI2cInstances> mgTxBuff;
-std::array<circularBuffer*, cAllI2cInstances> mgRxBuff;
+std::array<circularBuffer*, mcu::i2c::cAllI2cInstances> mgTxBuff;
+std::array<circularBuffer*, mcu::i2c::cAllI2cInstances> mgRxBuff;
 
 namespace mcu::i2c
 {
@@ -44,19 +44,22 @@ namespace mcu::i2c
             assert(0);
         }
 
+        RCC->APB1RSTR1 |= RCC_APB1RSTR1_I2C1RST;
+        RCC->APB1RSTR1 &= ~RCC_APB1RSTR1_I2C1RST;
+        enableI2c(false);
         enableClock(true);
         mClkPin->setFunctionality(static_cast<std::uint32_t>(mcu::gpio::eFunctionality::eI2C1_2_3));
         mSdaPin->setFunctionality(static_cast<std::uint32_t>(mcu::gpio::eFunctionality::eI2C1_2_3));
         setSpeed(speed);
         enableTransmit(true);
         // enableReceive(true);
-        enableI2c(true);
         giveBuffer();
         mInterrupt->enable();
         enableRxInterrupts(true);
+        enableI2c(true);
     }
 
-    eError I2c::sendVector(std::vector<std::uint8_t> sendMe) 
+    eError I2c::sendVector(std::uint8_t addr, std::vector<std::uint8_t> sendMe) 
     {
         for(const auto& sign : sendMe)
         {
@@ -66,17 +69,60 @@ namespace mcu::i2c
         return eError::eOk; 
     }
 
-    eError I2c::send(uint8_t *buff, uint16_t len) 
+    eError I2c::send(std::uint8_t addr, uint8_t *buff, uint16_t len) 
     {
-        for(uint8_t i = 0; i < len; i++)
+        mRegs->CR2 = (addr << I2C_CR2_SADD_Pos) & I2C_CR2_SADD;
+        mRegs->CR2 |= (len << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES;
+        mRegs->CR2 |= I2C_CR2_START;20
+
+        for (int i = 0; i < len; i++ )
         {
-            mTxBuff.put(buff[i]);
+            mRegs->TXDR = buff[i];
+            while (!(mRegs->ISR & I2C_ISR_TXIS));
         }
-        enableTxInterrupts(true);
+
+        // // Czekanie na TXIS
+        // while (!(mRegs->ISR & I2C_ISR_TXIS));
+
+        // // Wysyłanie danych
+        // mRegs->TXDR = buff[1];
+
+        // // Czekanie na zakończenie transmisji (TC - Transfer Complete)
+        // while (!(mRegs->ISR & I2C_ISR_TC));
+
+        // Stop komunikacji
+        mRegs->CR2 |= I2C_CR2_STOP;
+
+        // Czekanie na STOPF (Stop Detection Flag)
+        while (!(mRegs->ISR & I2C_ISR_STOPF));
+
+        // Wyczyść flagę STOPF
+        mRegs->ICR |= I2C_ICR_STOPCF;
+
+/**********************************************/
+        // mRegs->CR2 |= I2C_CR2_START;
+        // while (!(mRegs->SR1 & I2C_SR1_SB));
+
+        // // Adres urządzenia (z bitem Write)
+        // mRegs->DR = deviceAddress << 1;
+        // while (!(mRegs->SR1 & I2C_SR1_ADDR));
+        // (void)mRegs->SR2;
+
+
+
+
+        // mRegs->TXDR = (addr << 1);
+        // while (!(mRegs->SR1 & I2C_SR1_ADDR));
+        // for(uint8_t i = 0; i < len; i++)
+        // {
+
+        //     // mTxBuff.put(buff[i]);
+        // }
+        // enableTxInterrupts(true);
         return eError::eOk;
     }
 
-    eError I2c::get(uint8_t *buff, uint16_t len) 
+    eError I2c::get(std::uint8_t addr, std::uint8_t *buff, std::uint16_t len) 
     {
         for(uint16_t i = 0; i<len; i++)
         {
@@ -90,8 +136,18 @@ namespace mcu::i2c
 
     eError I2c::setSpeed(eSpeedMode speed) 
     {
+        constexpr uint32_t cNanoseconds{1000000000};
+        constexpr uint32_t cKilo{1000};
         mSpeedMode = speed;
-        mRegs->BRR = SystemCoreClock / static_cast<std::uint32_t>(mSpeedMode);
+        uint32_t tClkNs = cNanoseconds/SystemCoreClock;
+        uint32_t tI2cNs = cNanoseconds/(static_cast<uint32_t>(mSpeedMode) * cKilo);
+        uint32_t scl = (tClkNs/tI2cNs) - 1;
+        
+        mRegs->TIMINGR = (0 << I2C_TIMINGR_PRESC_Pos)   |
+                         (2 << I2C_TIMINGR_SDADEL_Pos)  |
+                         (4 << I2C_TIMINGR_SCLDEL_Pos)  |
+                         (scl << I2C_TIMINGR_SCLH_Pos)  |
+                         (scl << I2C_TIMINGR_SCLL_Pos)  ;
         return eError::eOk;
     }
 
@@ -195,7 +251,7 @@ namespace mcu::i2c
             mRegs->CR1 &= ~I2C_CR1_RXIE;
         }
 
-        return eError(); 
+        return eError::eOk;
     }
 } // I2c
 
@@ -203,24 +259,24 @@ namespace mcu::i2c
 std::uint8_t acc8{0};
 bool isEmpty{false};
 
-__attribute__((interrupt)) void I2C2_IRQHandler(void)
-{
-    // transmit
-    if (I2C2->ISR & I2C_ISR_TXE)
-    {
-        if (mgTxBuff[1]->pop(&acc8))
-        {
-            I2C2->TDR = acc8;
-        }
-        else
-        {
-            I2C2->CR1 &= ~I2C_CR1_TCIE;
-        }
-    }
+// __attribute__((interrupt)) void I2C1_IRQHandler(void)
+// {
+//     // transmit
+//     if (I2C1->ISR & I2C_ISR_TXE)
+//     {
+//         if (mgTxBuff[0]->pop(&acc8))
+//         {
+//             I2C1->TXDR = acc8;
+//         }
+//         else
+//         {
+//             I2C1->CR1 &= ~I2C_CR1_TCIE;
+//         }
+//     }
 
-    // receive
-    if (I2C2->ISR & I2C_ISR_RXNE) 
-    {
-        mgRxBuff[1]->put(I2C2->RDR);
-    }
-}
+//     // receive
+//     if (I2C1->ISR & I2C_ISR_RXNE) 
+//     {
+//         mgRxBuff[0]->put(I2C1->RXDR);
+//     }
+// }
