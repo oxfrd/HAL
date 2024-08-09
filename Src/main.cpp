@@ -11,6 +11,7 @@
 #include "delay.h"
 #include <gpioInput.h>
 #include "uart.h"
+#include "IPressureSensor.h"
 
 static void errHandler()
 {
@@ -124,6 +125,15 @@ int main()
         } else { errHandler();}
     }
 
+    std::shared_ptr<hal::sensor::IPressureSensor> pressureSensor{nullptr};
+    {
+        auto getter = pressureSensor->getPtr(static_cast<uint16_t>(eMcuResources::eBMP280),mcu);
+        if (getter.second == eError::eOk)
+        {
+            pressureSensor = std::dynamic_pointer_cast<hal::sensor::IPressureSensor>(getter.first);
+        } else { errHandler();}
+    }
+
     interrupt->enable();
 
     auto a0State = false;
@@ -137,7 +147,9 @@ int main()
     bool tick = true;
     std::uint8_t newByte = 0;
     eError err = eError::eUninitialized;
-
+    std::uint32_t chipID = 0;
+    float pressure{0};
+    uint8_t temp[11];
     while (true)
     {
         a0State = A0->getState();
@@ -158,8 +170,11 @@ int main()
             tick = true;
         }
 
+        pressureSensor->getChipId(&chipID);
+        pressureSensor->getValue(&pressure);
         delayMe(250);
-
+        sprintf((char*)temp, "Temp:%.2f\n", pressure);
+        uart->send(temp, 11);
         while(a0State || a1State || a2State || a3State || a5State)
         {
             constexpr std::uint32_t x{500};
@@ -173,6 +188,7 @@ int main()
         {
             ledGreen->toggle();
         }
+        chipID = 0;
     }
     return 0;
 }

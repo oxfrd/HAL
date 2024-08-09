@@ -16,6 +16,8 @@
 #include "gpioAlternate.h"
 #include "uart.h"
 #include "interrupt.h"
+#include "i2c.h"
+#include "BMP280.h"
 
 void checkErr(eError err)
 {
@@ -195,6 +197,72 @@ std::shared_ptr<hal::mcu::mcuManager> init()
     {
         auto uart2 = std::make_shared<uart::uart>(USART2, D5, D6, uart2int, hal::uart::eBaudrate::e9600);
         err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eUART2), std::move(uart2));
+        checkErr(err);
+    }
+
+    {
+        auto altFunGpio = std::make_shared<gpio::gpioAlternate>(6, portB);
+        err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eGPIO_B6), std::move(altFunGpio));
+        checkErr(err);
+    }
+
+    {
+        auto altFunGpio = std::make_shared<gpio::gpioAlternate>(7, portB);
+        err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eGPIO_B7), std::move(altFunGpio));
+        checkErr(err);
+    }
+    
+    {
+        auto interrupt = std::make_shared<interrupt::interrupt>(I2C1_EV_IRQn);
+        err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eInterruptI2C1Event), std::move(interrupt));
+        checkErr(err);
+    }
+
+    std::shared_ptr<interrupt::interrupt> i2cEventInt{nullptr};
+    {
+        auto getter = i2cEventInt->getPtr(static_cast<std::uint16_t>(eMcuResources::eInterruptI2C1Event), mcu);
+        if (getter.second == eError::eOk)
+        {
+            i2cEventInt = std::dynamic_pointer_cast<interrupt::interrupt>(getter.first);
+        } else { checkErr(getter.second);}
+    }
+
+    std::shared_ptr<gpio::gpioAlternate> B6{nullptr};
+    {
+        auto getter = B6->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_B6),mcu);
+        if (getter.second == eError::eOk)
+        {
+            B6 = std::dynamic_pointer_cast<gpio::gpioAlternate>(getter.first);
+        } else { checkErr(getter.second);}
+    }
+
+    std::shared_ptr<gpio::gpioAlternate> B7{nullptr};
+    {
+        auto getter = B7->getPtr(static_cast<uint16_t>(eMcuResources::eGPIO_B7),mcu);
+        if (getter.second == eError::eOk)
+        {
+            B7 = std::dynamic_pointer_cast<gpio::gpioAlternate>(getter.first);
+        } else { checkErr(getter.second);}
+    }
+
+    {
+        auto i2c1 = std::make_shared<i2c::I2c>(I2C1, B6, B7, i2cEventInt);
+        err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eI2c1), std::move(i2c1));
+        checkErr(err);
+    }
+
+    std::shared_ptr<hal::i2c::II2c> I2C1Handle{nullptr};
+    {
+        auto getter = I2C1Handle->getPtr(static_cast<uint16_t>(eMcuResources::eI2c1),mcu);
+        if (getter.second == eError::eOk)
+        {
+            I2C1Handle = std::dynamic_pointer_cast<hal::i2c::II2c>(getter.first);
+        } else { checkErr(getter.second);}
+    }
+
+    {
+        auto bmp = std::make_shared<module::BMP280>(I2C1Handle);
+        err = mcu->reserveResource(static_cast<std::uint16_t>(eMcuResources::eBMP280), std::move(bmp));
         checkErr(err);
     }
 

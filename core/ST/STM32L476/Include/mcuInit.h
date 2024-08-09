@@ -26,6 +26,11 @@ namespace mcu
         eGPIO_D6,
         eUART2,
         eIntUART2,
+        eGPIO_B6,
+        eGPIO_B7,
+        eI2c1,
+        eBMP280,
+        eInterruptI2C1Event,
     };
 
     std::shared_ptr<hal::mcu::mcuManager> init();
