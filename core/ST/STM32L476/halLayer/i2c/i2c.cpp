@@ -5,8 +5,8 @@
 #include "i2c.h"
 #include <cassert>
 
-std::array<circularBuffer*, mcu::i2c::cAllI2cInstances> mgTxBuff;
-std::array<circularBuffer*, mcu::i2c::cAllI2cInstances> mgRxBuff;
+// std::array<circularBuffer*, mcu::i2c::cAllI2cInstances> mgTxBuff;
+// std::array<circularBuffer*, mcu::i2c::cAllI2cInstances> mgRxBuff;
 
 namespace mcu::i2c
 {
@@ -15,7 +15,7 @@ namespace mcu::i2c
     I2c::I2c(I2C_TypeDef *i2cRegs, std::shared_ptr<gpio::gpioAlternate> clkPin,
                 std::shared_ptr<gpio::gpioAlternate> sdaPin,
                 std::shared_ptr<interrupt::interrupt> interrupt,
-                eSpeedMode speed = eSpeedMode::eStd):
+                eSpeedMode speed):
     II2c(),
     mRegs(i2cRegs),
     mClkPin(clkPin),
@@ -44,18 +44,18 @@ namespace mcu::i2c
             assert(0);
         }
 
-        RCC->APB1RSTR1 |= RCC_APB1RSTR1_I2C1RST;
-        RCC->APB1RSTR1 &= ~RCC_APB1RSTR1_I2C1RST;
         enableI2c(false);
+        setSpeed(speed);
         enableClock(true);
         mClkPin->setFunctionality(static_cast<std::uint32_t>(mcu::gpio::eFunctionality::eI2C1_2_3));
         mSdaPin->setFunctionality(static_cast<std::uint32_t>(mcu::gpio::eFunctionality::eI2C1_2_3));
-        setSpeed(speed);
         enableTransmit(true);
-        // enableReceive(true);
+        enableReceive(true);
         giveBuffer();
-        mInterrupt->enable();
+        //mInterrupt->enable();
+        mInterrupt->disable();
         enableRxInterrupts(true);
+        enableTxInterrupts(true);
         enableI2c(true);
     }
 
@@ -73,22 +73,16 @@ namespace mcu::i2c
     {
         mRegs->CR2 = (addr << I2C_CR2_SADD_Pos) & I2C_CR2_SADD;
         mRegs->CR2 |= (len << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES;
-        mRegs->CR2 |= I2C_CR2_START;20
+        mRegs->CR2 |= I2C_CR2_START;
 
-        for (int i = 0; i < len; i++ )
+        for (int i = 0; i < len; i++)
         {
-            mRegs->TXDR = buff[i];
             while (!(mRegs->ISR & I2C_ISR_TXIS));
+            mRegs->TXDR = buff[i];
+            
         }
-
-        // // Czekanie na TXIS
-        // while (!(mRegs->ISR & I2C_ISR_TXIS));
-
-        // // Wysyłanie danych
-        // mRegs->TXDR = buff[1];
-
-        // // Czekanie na zakończenie transmisji (TC - Transfer Complete)
-        // while (!(mRegs->ISR & I2C_ISR_TC));
+        
+        while (!(mRegs->ISR & I2C_ISR_TC));
 
         // Stop komunikacji
         mRegs->CR2 |= I2C_CR2_STOP;
@@ -122,17 +116,82 @@ namespace mcu::i2c
         return eError::eOk;
     }
 
-    eError I2c::get(std::uint8_t addr, std::uint8_t *buff, std::uint16_t len) 
+    eError I2c::get(std::uint8_t addr, uint8_t reg, uint8_t *buff, uint16_t len)
     {
-        for(uint16_t i = 0; i<len; i++)
+        while (mRegs->ISR & I2C_ISR_BUSY);
+
+        // Ustawienie adresu urządzenia docelowego
+        mRegs->CR2 = (addr << I2C_CR2_SADD_Pos) & I2C_CR2_SADD;
+
+        // Ustawienie liczby bajtów do wysłania (1 bajt - adres rejestru)
+        mRegs->CR2 |= (1 << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES;
+
+        // Rozpoczęcie transmisji
+        mRegs->CR2 |= I2C_CR2_START;
+        while (!(mRegs->ISR & I2C_ISR_TXIS));
+
+        // Wysłanie adresu rejestru
+        mRegs->TXDR = reg;
+
+        // Czekanie na zakończenie całej transmisji (TC - Transfer Complete)
+        while (!(mRegs->ISR & I2C_ISR_TC));
+
+        // Zakończenie transmisji z generacją stop
+        mRegs->CR2 |= I2C_CR2_STOP;
+
+        // Czekanie na zakończenie generacji sygnału stop (STOPF - Stop detection flag)
+        while (!(mRegs->ISR & I2C_ISR_STOPF));
+
+        // Czyszczenie flagi STOPF
+        mRegs->ICR |= I2C_ICR_STOPCF;
+
+        // Ustawienie adresu urządzenia docelowego do odczytu
+        mRegs->CR2 = (addr << I2C_CR2_SADD_Pos) & I2C_CR2_SADD;
+
+        // Ustawienie liczby bajtów do odczytu (1 bajt)
+        mRegs->CR2 |= (len << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES;
+
+        // Ustawienie bitu RD_WRN na odczyt
+        mRegs->CR2 |= I2C_CR2_RD_WRN;
+
+        // Rozpoczęcie odczytu
+        mRegs->CR2 |= I2C_CR2_START;
+
+        for(int i = 0; i<len; ++i)
         {
-            if (not mRxBuff.pop(buff))
-            {
-                return eError::eEmpty;
-            }
+            // Czekanie na zakończenie odbioru bajtu (RXNE - Receive Data Register Not Empty)
+            while (!(mRegs->ISR & I2C_ISR_RXNE));
+
+            // Odczytanie danych
+            buff[i] = mRegs->RXDR;
         }
+        // Czekanie na zakończenie całej transmisji (TC - Transfer Complete)
+        while (!(mRegs->ISR & I2C_ISR_TC));
+
+        // Zakończenie transmisji z generacją stop
+        mRegs->CR2 |= I2C_CR2_STOP;
+
+        // Czekanie na zakończenie generacji sygnału stop (STOPF - Stop detection flag)
+        while (!(mRegs->ISR & I2C_ISR_STOPF));
+
+        // Czyszczenie flagi STOPF
+        mRegs->ICR |= I2C_ICR_STOPCF;
+
         return eError::eOk;
     }
+
+    // eError I2c::get(std::uint8_t addr, std::uint8_t *buff, std::uint16_t len) 
+    // {
+    //     for(uint16_t i = 0; i<len; i++)
+    //     {
+    //         if (not mRxBuff.pop(buff))
+    //         {
+    //             return eError::eEmpty;
+    //         }
+    //     }
+    //     return eError::eOk;
+    // }
+
 
     eError I2c::setSpeed(eSpeedMode speed) 
     {
@@ -205,24 +264,24 @@ namespace mcu::i2c
 
     eError I2c::giveBuffer() 
     {
-        if (mRegs == I2C1)        
-        {
-            mgTxBuff.at(0) = &mTxBuff;
-            mgRxBuff.at(0) = &mRxBuff;
-            return eError::eOk;
-        }
-        else if (mRegs == I2C2)
-        {
-            mgTxBuff.at(1) = &mTxBuff;
-            mgRxBuff.at(1) = &mRxBuff;
-            return eError::eOk;
-        }
-        else if (mRegs == I2C3)
-        {
-            mgTxBuff.at(2) = &mTxBuff;
-            mgRxBuff.at(2) = &mRxBuff;
-            return eError::eOk;
-        }
+        // if (mRegs == I2C1)        
+        // {
+        //     mgTxBuff.at(0) = &mTxBuff;
+        //     mgRxBuff.at(0) = &mRxBuff;
+        //     return eError::eOk;
+        // }
+        // else if (mRegs == I2C2)
+        // {
+        //     mgTxBuff.at(1) = &mTxBuff;
+        //     mgRxBuff.at(1) = &mRxBuff;
+        //     return eError::eOk;
+        // }
+        // else if (mRegs == I2C3)
+        // {
+        //     mgTxBuff.at(2) = &mTxBuff;
+        //     mgRxBuff.at(2) = &mRxBuff;
+        //     return eError::eOk;
+        // }
         
         return eError::eFail; 
     }
@@ -256,27 +315,26 @@ namespace mcu::i2c
 } // I2c
 
 
-std::uint8_t acc8{0};
-bool isEmpty{false};
+// std::uint8_t acc8{0};
+// bool isEmpty{false};
 
-// __attribute__((interrupt)) void I2C1_IRQHandler(void)
-// {
-//     // transmit
-//     if (I2C1->ISR & I2C_ISR_TXE)
-//     {
-//         if (mgTxBuff[0]->pop(&acc8))
-//         {
-//             I2C1->TXDR = acc8;
-//         }
-//         else
-//         {
-//             I2C1->CR1 &= ~I2C_CR1_TCIE;
-//         }
-//     }
-
-//     // receive
-//     if (I2C1->ISR & I2C_ISR_RXNE) 
-//     {
-//         mgRxBuff[0]->put(I2C1->RXDR);
-//     }
-// }
+__attribute__((interrupt)) void I2C1_EV_IRQHandler(void)
+{
+    // transmit
+    if (I2C1->ISR & I2C_ISR_TXE)
+    {
+        // if (mgTxBuff[0]->pop(&acc8))
+        // {
+        //     I2C1->TXDR = acc8;
+        // }
+        // else
+        // {
+        //     I2C1->CR1 &= ~I2C_CR1_TCIE;
+        // }
+    }
+    // receive
+    if (I2C1->ISR & I2C_ISR_RXNE) 
+    {
+        // mgRxBuff[0]->put(I2C1->RXDR);
+    }
+}
