@@ -12,34 +12,16 @@
 
 namespace module
 {
-    class BMP280 : public hal::sensor::IPressureSensor
-    {
-    public:
-        BMP280(std::shared_ptr<hal::i2c::II2c> i2cHandle, std::uint8_t addr = cDefaultAdrr);
-        eError enable(bool enable) override;
-        eError getValue(float *valkPa) override;
-    private:
-        static constexpr std::uint8_t cDefaultAdrr{0xEC};
-
-        std::shared_ptr<hal::i2c::II2c> mI2c{nullptr};
-        std::uint8_t mI2cAddress{0};
-        
-        std::uint8_t readU8();
-        std::uint16_t readU16();
-        std::uint16_t readU16LE();
-        bool writeU8(uint8_t data);
-        std::uint32_t readU24();
-    };
-
     namespace Bmp280
     {
-        enum class eTemperatureResolution
+        enum class eTemperatureOversampling
         {
-            e16bit = 0,
-            e17bit,
-            e18bit,
-            e19bit,
-            e20bit,
+            eSkipped = 0,
+            eX1,
+            eX2,
+            eX4,
+            eX8,
+            eX16,
         };
 
         enum class ePressureOversampling
@@ -76,23 +58,24 @@ namespace module
         {
             eSleep,
             eForced,
+            eForcedToo,
             eNormal,
         };
 
         //	Coeff registers
-        constexpr std::uint8_t DIG_T1 {0x88};
-        constexpr std::uint8_t DIG_T2 {0x8A};
-        constexpr std::uint8_t DIG_T3 {0x8C};
+        constexpr std::uint8_t cDIG_T1 {0x88};
+        constexpr std::uint8_t cDIG_T2 {0x8A};
+        constexpr std::uint8_t cDIG_T3 {0x8C};
 
-        constexpr std::uint8_t DIG_P1 {0x8E};
-        constexpr std::uint8_t DIG_P2 {0x90};
-        constexpr std::uint8_t DIG_P3 {0x92};
-        constexpr std::uint8_t DIG_P4 {0x94};
-        constexpr std::uint8_t DIG_P5 {0x96};
-        constexpr std::uint8_t DIG_P6 {0x98};
-        constexpr std::uint8_t DIG_P7 {0x9A};
-        constexpr std::uint8_t DIG_P8 {0x9C};
-        constexpr std::uint8_t DIG_P9 {0x9E};
+        constexpr std::uint8_t cDIG_P1 {0x8E};
+        constexpr std::uint8_t cDIG_P2 {0x90};
+        constexpr std::uint8_t cDIG_P3 {0x92};
+        constexpr std::uint8_t cDIG_P4 {0x94};
+        constexpr std::uint8_t cDIG_P5 {0x96};
+        constexpr std::uint8_t cDIG_P6 {0x98};
+        constexpr std::uint8_t cDIG_P7 {0x9A};
+        constexpr std::uint8_t cDIG_P8 {0x9C};
+        constexpr std::uint8_t cDIG_P9 {0x9E};
 
         // Registers
         constexpr std::uint8_t cChipId		{0xD0};
@@ -107,4 +90,29 @@ namespace module
 
         constexpr std::uint8_t cMeasuring (1<<3); // Conversion in progress
     } //namespace Bmp280
+    class BMP280 : public hal::sensor::IPressureSensor
+    {
+    public:
+        BMP280(std::shared_ptr<hal::i2c::II2c> i2cHandle, std::uint8_t addr = cDefaultAdrr);
+        eError enable(bool enable) override;
+        eError getValue(float *valkPa) override;
+        eError getChipId(std::uint32_t *val) override;
+        void getNormal(float*val);
+    private:
+        static constexpr std::uint8_t cDefaultAdrr{0xEC};
+        Bmp280::eMode mMode;
+        std::uint16_t mCalibT1;
+        std::int16_t mCalibT[2];
+        std::uint16_t mCalibP1;
+        std::int16_t mCalibP[9];
+
+        std::shared_ptr<hal::i2c::II2c> mI2c{nullptr};
+        std::uint8_t mI2cAddress{0};
+        eError init();
+        std::uint8_t readU8(std::uint8_t reg);
+        std::uint16_t readU16(std::uint8_t reg);
+        std::uint16_t readU16LE(std::uint8_t reg);
+        bool writeU8(std::uint8_t reg, std::uint8_t data);
+        std::uint32_t readU24(std::uint8_t reg);
+    };
 } //namespace module
