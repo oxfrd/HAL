@@ -17,8 +17,8 @@ namespace hal::sensor
     public:
         IPressureSensor() = default;
         virtual eError enable(bool enable) = 0;
-        virtual eError getValue(float *val) = 0;
-        virtual eError getChipId(std::uint32_t *val) = 0;
+        virtual eError getPressure(float *valPa) = 0;
+        virtual eError getTemperature(float *val) = 0;
         
         std::pair<std::shared_ptr<IPressureSensor>, eError> getPtr( 
             std::uint16_t id,
