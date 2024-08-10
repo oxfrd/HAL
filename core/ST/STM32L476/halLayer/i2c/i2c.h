@@ -32,6 +32,7 @@ namespace mcu::i2c {
     private:
         static constexpr size_t cTxBufferSize{1000};
         static constexpr size_t cRxBufferSize{1000};
+        static constexpr std::uint16_t cLoopReplaysLimit{1000};
 
         I2C_TypeDef *mRegs;
         eSpeedMode mSpeedMode;
