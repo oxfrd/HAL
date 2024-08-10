@@ -12,6 +12,17 @@ namespace mcu::i2c
 {
     using namespace hal::i2c;
 
+    #define WAIT_FOR_FLAG(REG, FLAG, COUNTER, ERROR, NOTNEGATE) \
+    COUNTER = 0; \
+    while (!((REG) & (FLAG)) ^ (NOTNEGATE)) \
+    { \
+        ++COUNTER; \
+        if ((COUNTER) > (cLoopReplaysLimit)) \
+        { \
+            return ERROR; \
+        } \
+    }
+
     I2c::I2c(I2C_TypeDef *i2cRegs, std::shared_ptr<gpio::gpioAlternate> clkPin,
                 std::shared_ptr<gpio::gpioAlternate> sdaPin,
                 std::shared_ptr<interrupt::interrupt> interrupt,
@@ -71,127 +82,66 @@ namespace mcu::i2c
 
     eError I2c::send(std::uint8_t addr, uint8_t *buff, uint16_t len) 
     {
+        std::uint16_t inLoopCnt{0};
+        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_BUSY, inLoopCnt, eError::eBusy, 1);
+
         mRegs->CR2 = (addr << I2C_CR2_SADD_Pos) & I2C_CR2_SADD;
         mRegs->CR2 |= (len << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES;
         mRegs->CR2 |= I2C_CR2_START;
 
         for (int i = 0; i < len; i++)
         {
-            while (!(mRegs->ISR & I2C_ISR_TXIS));
+            WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_TXIS, inLoopCnt, eError::eFail, 0);
             mRegs->TXDR = buff[i];
-            
         }
         
-        while (!(mRegs->ISR & I2C_ISR_TC));
+        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_TC, inLoopCnt, eError::eFail, 0);
 
-        // Stop komunikacji
         mRegs->CR2 |= I2C_CR2_STOP;
-
-        // Czekanie na STOPF (Stop Detection Flag)
-        while (!(mRegs->ISR & I2C_ISR_STOPF));
-
-        // Wyczyść flagę STOPF
+        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_STOPF, inLoopCnt, eError::eFail, 0);
+        
         mRegs->ICR |= I2C_ICR_STOPCF;
-
-/**********************************************/
-        // mRegs->CR2 |= I2C_CR2_START;
-        // while (!(mRegs->SR1 & I2C_SR1_SB));
-
-        // // Adres urządzenia (z bitem Write)
-        // mRegs->DR = deviceAddress << 1;
-        // while (!(mRegs->SR1 & I2C_SR1_ADDR));
-        // (void)mRegs->SR2;
-
-
-
-
-        // mRegs->TXDR = (addr << 1);
-        // while (!(mRegs->SR1 & I2C_SR1_ADDR));
-        // for(uint8_t i = 0; i < len; i++)
-        // {
-
-        //     // mTxBuff.put(buff[i]);
-        // }
-        // enableTxInterrupts(true);
         return eError::eOk;
     }
 
     eError I2c::get(std::uint8_t addr, uint8_t reg, uint8_t *buff, uint16_t len)
     {
-        while (mRegs->ISR & I2C_ISR_BUSY);
+        std::uint16_t inLoopCnt{0};
 
-        // Ustawienie adresu urządzenia docelowego
+        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_BUSY, inLoopCnt, eError::eBusy, 1);
+
         mRegs->CR2 = (addr << I2C_CR2_SADD_Pos) & I2C_CR2_SADD;
-
-        // Ustawienie liczby bajtów do wysłania (1 bajt - adres rejestru)
         mRegs->CR2 |= (1 << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES;
-
-        // Rozpoczęcie transmisji
         mRegs->CR2 |= I2C_CR2_START;
-        while (!(mRegs->ISR & I2C_ISR_TXIS));
-
-        // Wysłanie adresu rejestru
+        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_TXIS, inLoopCnt, eError::eFail, 0);
+        
         mRegs->TXDR = reg;
+        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_TC, inLoopCnt, eError::eFail, 0);
 
-        // Czekanie na zakończenie całej transmisji (TC - Transfer Complete)
-        while (!(mRegs->ISR & I2C_ISR_TC));
-
-        // Zakończenie transmisji z generacją stop
         mRegs->CR2 |= I2C_CR2_STOP;
+        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_STOPF, inLoopCnt, eError::eFail, 0);
 
-        // Czekanie na zakończenie generacji sygnału stop (STOPF - Stop detection flag)
-        while (!(mRegs->ISR & I2C_ISR_STOPF));
-
-        // Czyszczenie flagi STOPF
         mRegs->ICR |= I2C_ICR_STOPCF;
 
-        // Ustawienie adresu urządzenia docelowego do odczytu
         mRegs->CR2 = (addr << I2C_CR2_SADD_Pos) & I2C_CR2_SADD;
-
-        // Ustawienie liczby bajtów do odczytu (1 bajt)
         mRegs->CR2 |= (len << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES;
-
-        // Ustawienie bitu RD_WRN na odczyt
         mRegs->CR2 |= I2C_CR2_RD_WRN;
-
-        // Rozpoczęcie odczytu
         mRegs->CR2 |= I2C_CR2_START;
 
         for(int i = 0; i<len; ++i)
         {
-            // Czekanie na zakończenie odbioru bajtu (RXNE - Receive Data Register Not Empty)
-            while (!(mRegs->ISR & I2C_ISR_RXNE));
-
-            // Odczytanie danych
+            WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_RXNE, inLoopCnt, eError::eFail, 0);
             buff[i] = mRegs->RXDR;
         }
-        // Czekanie na zakończenie całej transmisji (TC - Transfer Complete)
-        while (!(mRegs->ISR & I2C_ISR_TC));
+        
+        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_TC, inLoopCnt, eError::eFail, 0);
 
-        // Zakończenie transmisji z generacją stop
         mRegs->CR2 |= I2C_CR2_STOP;
-
-        // Czekanie na zakończenie generacji sygnału stop (STOPF - Stop detection flag)
-        while (!(mRegs->ISR & I2C_ISR_STOPF));
-
-        // Czyszczenie flagi STOPF
+        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_STOPF, inLoopCnt, eError::eFail, 0);
+        
         mRegs->ICR |= I2C_ICR_STOPCF;
-
         return eError::eOk;
     }
-
-    // eError I2c::get(std::uint8_t addr, std::uint8_t *buff, std::uint16_t len) 
-    // {
-    //     for(uint16_t i = 0; i<len; i++)
-    //     {
-    //         if (not mRxBuff.pop(buff))
-    //         {
-    //             return eError::eEmpty;
-    //         }
-    //     }
-    //     return eError::eOk;
-    // }
-
 
     eError I2c::setSpeed(eSpeedMode speed) 
     {
