@@ -12,6 +12,7 @@
 #include <gpioInput.h>
 #include "uart.h"
 #include "IPressureSensor.h"
+#include "string.h"
 
 static void errHandler()
 {
@@ -147,9 +148,9 @@ int main()
     bool tick = true;
     std::uint8_t newByte = 0;
     eError err = eError::eUninitialized;
-    std::uint32_t chipID = 0;
     float pressure{0};
-    uint8_t temp[11];
+    float temperature{0};
+    uint8_t temp[30];
     while (true)
     {
         a0State = A0->getState();
@@ -170,11 +171,16 @@ int main()
             tick = true;
         }
 
-        pressureSensor->getChipId(&chipID);
-        pressureSensor->getValue(&pressure);
-        delayMe(250);
-        sprintf((char*)temp, "Temp:%.2f\n", pressure);
-        uart->send(temp, 11);
+        pressureSensor->getPressure(&pressure);
+        pressure /= 100; // Pa -> hPa
+        sprintf((char*)temp, "Press:%.2fhPa\n", pressure);
+        uart->send(temp, 18);
+
+        pressureSensor->getTemperature(&temperature);
+        sprintf((char*)temp, "Temp:%.2fC\n", temperature);
+        uart->send(temp, 12);
+        delayMe(500);
+        
         while(a0State || a1State || a2State || a3State || a5State)
         {
             constexpr std::uint32_t x{500};
@@ -188,7 +194,6 @@ int main()
         {
             ledGreen->toggle();
         }
-        chipID = 0;
     }
     return 0;
 }

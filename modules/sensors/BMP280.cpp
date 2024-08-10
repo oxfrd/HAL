@@ -46,8 +46,14 @@ namespace module
         std::uint8_t ctrl = ((static_cast<std::uint8_t>(Bmp280::eTemperatureOversampling::eX1) << 5) 
                 | (static_cast<std::uint8_t>(Bmp280::ePressureOversampling::eStandard)<<2)) 
                 | (static_cast<std::uint8_t>(Bmp280::eMode::eNormal));
-        writeU8(Bmp280::cControl, ctrl);
-        mMode = Bmp280::eMode::eForced;
+        if (writeU8(Bmp280::cControl, ctrl))
+        {
+            mMode = Bmp280::eMode::eForced;
+        }
+        else
+        {
+            return eError::eUninitialized;
+        }
         return eError::eOk; 
     }
 
@@ -56,35 +62,41 @@ namespace module
         return eError::eUninitialized;
     }
 
-    eError BMP280::getValue(float* valkPa)
+    eError BMP280::getPressure(float* valPa)
     {
 
-        int64_t var1, var2, p;
+        std::int64_t var1, var2, p;
         // Must be done first to get the t_fine variable set up
-        getTemperature(valkPa);
-        // *valkPa = readU8(Bmp280::cStatus);   
+        auto err = getTemperature(valPa); //not matter about real value
+        if (err != eError::eOk)
+        {
+            return err;
+        }
 
-        // int32_t adc_P = readU24(PRESSUREDATA);
-        // adc_P >>= 4;
+        std::int32_t adc_P = readU24(Bmp280::cPressureData);
+        adc_P >>= 4;
 
-        // var1 = ((int64_t)t_fine) - 128000;
-        // var2 = var1 * var1 * (int64_t)p6;
-        // var2 = var2 + ((var1*(int64_t)p5)<<17);
-        // var2 = var2 + (((int64_t)p4)<<35);
-        // var1 = ((var1 * var1 * (int64_t)p3)>>8) +
-        //     ((var1 * (int64_t)p2)<<12);
-        // var1 = (((((int64_t)1)<<47)+var1))*((int64_t)p1)>>33;
+        var1 = ((std::int64_t)mTFine) - 128000;
+        var2 = var1 * var1 * (int64_t)mCalibP[4];
+        var2 = var2 + ((var1*(int64_t)mCalibP[3])<<17);
+        var2 = var2 + (((int64_t)mCalibP[2])<<35);
+        var1 = ((var1 * var1 * (int64_t)mCalibP[1])>>8) +
+            ((var1 * (int64_t)mCalibP[0])<<12);
+        var1 = (((((int64_t)1)<<47)+var1))*((int64_t)mCalibP1)>>33;
 
-        // if (var1 == 0) {
-        //     return 0;  // avoid exception caused by division by zero
-        // }
-        // p = 1048576 - adc_P;
-        // p = (((p<<31) - var2)*3125) / var1;
-        // var1 = (((int64_t)p9) * (p>>13) * (p>>13)) >> 25;
-        // var2 = (((int64_t)p8) * p) >> 19;
+        p = 1048576 - adc_P;
+        
+        if (var1 == 0) 
+        {
+            return eError::eFail;
+        }
+        p = (((p<<31) - var2)*3125) / var1;
+        var1 = (((int64_t)mCalibP[7]) * (p>>13) * (p>>13)) >> 25;
+        var2 = (((int64_t)mCalibP[6]) * p) >> 19;
 
-        // p = ((p + var1 + var2) >> 8) + (((int64_t)p7)<<4);
-        // return (int32_t)p/256;
+        p = ((p + var1 + var2) >> 8) + (((int64_t)mCalibP[5])<<4);
+        *valPa = (int32_t)p/256;
+        
         return eError::eOk;
     }
 
@@ -96,19 +108,19 @@ namespace module
 
     eError BMP280::getTemperature(float *val) 
     {
-        int32_t adc_T = readU24(Bmp280::cTempData);
+        std::int32_t adc_T = readU24(Bmp280::cTempData);
         adc_T >>= 4;
 
-        int32_t var1  = ((((adc_T>>3) - ((int32_t)mCalibT1 <<1))) *
+        std::int32_t var1  = ((((adc_T>>3) - ((int32_t)mCalibT1 <<1))) *
                 ((int32_t)mCalibT[0])) >> 11;
 
-        int32_t var2  = (((((adc_T>>4) - ((int32_t)mCalibT1)) *
+        std::int32_t var2  = (((((adc_T>>4) - ((int32_t)mCalibT1)) *
                 ((adc_T>>4) - ((int32_t)mCalibT1))) >> 12) *
                 ((int32_t)mCalibT[1])) >> 14;
 
-        int32_t t_fine = var1 + var2;
+        mTFine = var1 + var2;
 
-        int32_t T  = (t_fine * 5 + 128) >> 8;
+        std::int32_t T  = (mTFine * 5 + 128) >> 8;
         *val = ((float)T/100);
         return eError::eOk;
     }

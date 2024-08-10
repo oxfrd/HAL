@@ -60,6 +60,7 @@ namespace module
             eForced,
             eForcedToo,
             eNormal,
+            eUnInit_UnsettableAtDevice = 100,
         };
 
         //	Coeff registers
@@ -95,20 +96,21 @@ namespace module
     public:
         BMP280(std::shared_ptr<hal::i2c::II2c> i2cHandle, std::uint8_t addr = cDefaultAdrr);
         eError enable(bool enable) override;
-        eError getValue(float *valkPa) override;
-        eError getChipId(std::uint32_t *val) override;
-        void getNormal(float*val);
+        eError getPressure(float *valPa) override;
+        eError getTemperature(float *val) override;
     private:
         static constexpr std::uint8_t cDefaultAdrr{0xEC};
-        Bmp280::eMode mMode;
+        Bmp280::eMode mMode{Bmp280::eMode::eUnInit_UnsettableAtDevice};
         std::uint16_t mCalibT1;
         std::int16_t mCalibT[2];
         std::uint16_t mCalibP1;
         std::int16_t mCalibP[9];
-
+        std::int32_t mTFine;
         std::shared_ptr<hal::i2c::II2c> mI2c{nullptr};
         std::uint8_t mI2cAddress{0};
+
         eError init();
+        eError getChipId(std::uint32_t *val);
         std::uint8_t readU8(std::uint8_t reg);
         std::uint16_t readU16(std::uint8_t reg);
         std::uint16_t readU16LE(std::uint8_t reg);
