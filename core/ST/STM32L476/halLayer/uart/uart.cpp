@@ -84,7 +84,7 @@ namespace mcu::uart
     {
         for(uint16_t i = 0; i<len; i++)
         {
-            if (not mgRxBuff[1]->pop(buff))
+            if (not mRxBuff.pop(buff))
             {
                 return eError::eEmpty;
             }

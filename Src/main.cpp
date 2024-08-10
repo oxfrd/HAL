@@ -11,6 +11,8 @@
 #include "delay.h"
 #include <gpioInput.h>
 #include "uart.h"
+#include "IPressureSensor.h"
+#include "string.h"
 
 static void errHandler()
 {
@@ -124,6 +126,15 @@ int main()
         } else { errHandler();}
     }
 
+    std::shared_ptr<hal::sensor::IPressureSensor> pressureSensor{nullptr};
+    {
+        auto getter = pressureSensor->getPtr(static_cast<uint16_t>(eMcuResources::eBMP280),mcu);
+        if (getter.second == eError::eOk)
+        {
+            pressureSensor = std::dynamic_pointer_cast<hal::sensor::IPressureSensor>(getter.first);
+        } else { errHandler();}
+    }
+
     interrupt->enable();
 
     auto a0State = false;
@@ -137,7 +148,9 @@ int main()
     bool tick = true;
     std::uint8_t newByte = 0;
     eError err = eError::eUninitialized;
-
+    float pressure{0};
+    float temperature{0};
+    uint8_t temp[30];
     while (true)
     {
         a0State = A0->getState();
@@ -158,8 +171,16 @@ int main()
             tick = true;
         }
 
-        delayMe(250);
+        pressureSensor->getPressure(&pressure);
+        pressure /= 100; // Pa -> hPa
+        sprintf((char*)temp, "Press:%.2fhPa\n", pressure);
+        uart->send(temp, 18);
 
+        pressureSensor->getTemperature(&temperature);
+        sprintf((char*)temp, "Temp:%.2fC\n", temperature);
+        uart->send(temp, 12);
+        delayMe(500);
+        
         while(a0State || a1State || a2State || a3State || a5State)
         {
             constexpr std::uint32_t x{500};
