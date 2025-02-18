@@ -7,8 +7,8 @@ add_library(II2C
 target_link_libraries(II2C PRIVATE MCU_RELATED IMCU)
 
 target_include_directories(IUART PUBLIC
-        ${CMAKE_SOURCE_DIR}/lib/components/i2c
-        PRIVATE ${CMAKE_SOURCE_DIR}/lib/components/gpio
-        PRIVATE ${CMAKE_SOURCE_DIR}/lib
+        ${HAL_DIR_PATH}/lib/components/i2c
+        PRIVATE ${HAL_DIR_PATH}/lib/components/gpio
+        PRIVATE ${HAL_DIR_PATH}/lib
 )
  

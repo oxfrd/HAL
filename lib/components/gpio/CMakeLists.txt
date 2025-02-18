@@ -11,7 +11,7 @@ add_library(IGPIO
 target_link_libraries(IGPIO PRIVATE MCU_RELATED IMCU)
 
 target_include_directories(IGPIO PUBLIC
-        ${CMAKE_SOURCE_DIR}/lib/components/gpio
-        ${CMAKE_SOURCE_DIR}/lib
+        ${HAL_DIR_PATH}/lib/components/gpio
+        ${HAL_DIR_PATH}/lib
 )
  

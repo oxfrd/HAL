@@ -7,8 +7,8 @@ add_library(IUART
 target_link_libraries(IUART PRIVATE MCU_RELATED IMCU)
 
 target_include_directories(IUART PUBLIC
-        ${CMAKE_SOURCE_DIR}/lib/components/uart
-        PRIVATE ${CMAKE_SOURCE_DIR}/lib/components/gpio
-        PRIVATE ${CMAKE_SOURCE_DIR}/lib
+        ${HAL_DIR_PATH}/lib/components/uart
+        PRIVATE ${HAL_DIR_PATH}/lib/components/gpio
+        PRIVATE ${HAL_DIR_PATH}/lib
 )
  

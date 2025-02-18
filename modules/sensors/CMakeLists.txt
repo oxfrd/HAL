@@ -7,7 +7,7 @@ add_library(BMP280
 target_link_libraries(BMP280 PRIVATE HAL_MODULES II2C)
 
 target_include_directories(BMP280 PUBLIC .
-                        PRIVATE ${CMAKE_SOURCE_DIR}/lib/components
-                        PRIVATE ${CMAKE_SOURCE_DIR}/lib/components/i2c
+                        PRIVATE ${HAL_DIR_PATH}/lib/components
+                        PRIVATE ${HAL_DIR_PATH}/lib/components/i2c
                         )
  

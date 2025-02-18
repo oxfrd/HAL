@@ -7,7 +7,7 @@ add_library(IMCU
 target_link_libraries(IMCU PRIVATE MCU_RELATED)
 
 target_include_directories(IMCU PUBLIC
-        ${CMAKE_SOURCE_DIR}/lib/components/mcu
-        ${CMAKE_SOURCE_DIR}/lib
+        ${HAL_DIR_PATH}/lib/components/mcu
+        ${HAL_DIR_PATH}/lib
 )
  

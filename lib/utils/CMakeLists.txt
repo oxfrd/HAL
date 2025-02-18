@@ -4,5 +4,5 @@ add_library(HAL_UTILS
                  circularBuffer.cpp)
 
 target_include_directories(HAL_UTILS 
-         PUBLIC ${CMAKE_SOURCE_DIR}/lib/utils
+         PUBLIC ${HAL_DIR_PATH}/lib/utils
          )
