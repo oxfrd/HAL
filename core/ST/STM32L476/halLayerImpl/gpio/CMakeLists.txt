@@ -10,7 +10,7 @@ add_library(GPIO_IMPLEMENTATION
 target_link_libraries(GPIO_IMPLEMENTATION PRIVATE HAL_MCU_LAYER MCU_RELATED)
 
 target_include_directories(GPIO_IMPLEMENTATION PRIVATE
-        ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/Include
-        ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/halLayerImpl
-        ${CMAKE_SOURCE_DIR}/lib/components/gpio
+        ${HAL_DIR_PATH}/core/ST/${MCU_MODEL}/Include
+        ${HAL_DIR_PATH}/core/ST/${MCU_MODEL}/halLayerImpl
+        ${HAL_DIR_PATH}/lib/components/gpio
 )

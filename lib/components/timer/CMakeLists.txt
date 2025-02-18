@@ -7,6 +7,6 @@ add_library(ITIMER
 target_link_libraries(ITIMER PRIVATE MCU_RELATED IMCU)
 
 target_include_directories(ITIMER PRIVATE
-        ${CMAKE_SOURCE_DIR}/lib
+        ${HAL_DIR_PATH}/lib
 )
  

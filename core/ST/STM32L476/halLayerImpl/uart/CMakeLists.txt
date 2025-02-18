@@ -5,13 +5,13 @@ add_library(UART_IMPLEMENTATION
 )
 
 target_include_directories(UART_IMPLEMENTATION PRIVATE
-        ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/Include
-        ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/halLayerImpl
-        ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/halLayerImpl/gpio
-        ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/halLayerImpl/interrupt
-        PUBLIC ${CMAKE_SOURCE_DIR}/core/ST/${MCU_MODEL}/halLayerImpl/uart
-        PUBLIC ${CMAKE_SOURCE_DIR}/lib/utils
-        PUBLIC ${CMAKE_SOURCE_DIR}/lib/components/interrupt
+        ${HAL_DIR_PATH}/core/ST/${MCU_MODEL}/Include
+        ${HAL_DIR_PATH}/core/ST/${MCU_MODEL}/halLayerImpl
+        ${HAL_DIR_PATH}/core/ST/${MCU_MODEL}/halLayerImpl/gpio
+        ${HAL_DIR_PATH}/core/ST/${MCU_MODEL}/halLayerImpl/interrupt
+        PUBLIC ${HAL_DIR_PATH}/core/ST/${MCU_MODEL}/halLayerImpl/uart
+        PUBLIC ${HAL_DIR_PATH}/lib/utils
+        PUBLIC ${HAL_DIR_PATH}/lib/components/interrupt
         
 )
 

@@ -8,7 +8,7 @@ add_library(IINTERRUPT
 target_link_libraries(IINTERRUPT PRIVATE MCU_RELATED IMCU)
 
 target_include_directories(IINTERRUPT PRIVATE
-        ${CMAKE_SOURCE_DIR}/lib
-        ${CMAKE_SOURCE_DIR}/lib/components/interrupt
+        ${HAL_DIR_PATH}/lib
+        ${HAL_DIR_PATH}/lib/components/interrupt
 )
  
