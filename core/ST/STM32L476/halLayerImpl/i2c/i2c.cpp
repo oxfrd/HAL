@@ -268,7 +268,7 @@ namespace mcu::i2c
 // std::uint8_t acc8{0};
 // bool isEmpty{false};
 
-__attribute__((interrupt)) void I2C1_EV_IRQHandler(void)
+/*__attribute__((interrupt)) */void I2C1_EV_IRQHandler(void* arg)
 {
     // transmit
     if (I2C1->ISR & I2C_ISR_TXE)

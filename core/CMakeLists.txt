@@ -1,2 +1,1 @@
-add_subdirectory(ST/${MCU_MODEL}/Source)
-add_subdirectory(ST/${MCU_MODEL}/halLayer)
+add_subdirectory(${MANUFACTURER}/${MCU_MODEL}/Source)
