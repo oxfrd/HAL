@@ -57,7 +57,7 @@ namespace mcu::i2c {
 #ifdef __cplusplus
  extern "C" {
 #endif
-    __attribute__((interrupt)) void I2C1_EV_IRQHandler(void);
+    /*__attribute__((interrupt))*/ void I2C1_EV_IRQHandler(void* arg);
 #ifdef __cplusplus
 }
 #endif
