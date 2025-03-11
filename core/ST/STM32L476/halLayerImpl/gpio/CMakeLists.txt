@@ -7,9 +7,9 @@ add_library(GPIO_IMPLEMENTATION
         gpioAlternate.cpp
 )
 
-target_link_libraries(GPIO_IMPLEMENTATION PRIVATE HAL_MCU_LAYER MCU_RELATED)
+target_link_libraries(GPIO_IMPLEMENTATION PUBLIC HAL_MCU_LAYER MCU_RELATED)
 
-target_include_directories(GPIO_IMPLEMENTATION PRIVATE
+target_include_directories(GPIO_IMPLEMENTATION PUBLIC
         ${HAL_DIR_PATH}/core/ST/${MCU_MODEL}/Include
         ${HAL_DIR_PATH}/core/ST/${MCU_MODEL}/halLayerImpl
         ${HAL_DIR_PATH}/lib/components/gpio
