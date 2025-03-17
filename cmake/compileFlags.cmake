@@ -15,10 +15,6 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mfloat-abi=hard -mfpu=fpv
 #Uncomment for software floating point
 #add_compile_options(-mfloat-abi=soft)
 
-# set(ASM_FLAGS "-x assembler-with-cpp" CACHE STRING "asm flags")
-# add_compile_options(-mcpu=${CPU_CORE} -mthumb -mthumb-interwork)
-# add_compile_options(-ffunction-sections -fdata-sections -fno-common -fmessage-length=0)
-
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcpu=${CPU_CORE} -mthumb -mthumb-interwork" CACHE STRING "C Compiler Flags" FORCE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=${CPU_CORE} -mthumb -mthumb-interwork" CACHE STRING "CXX Compiler Flags" FORCE)
 

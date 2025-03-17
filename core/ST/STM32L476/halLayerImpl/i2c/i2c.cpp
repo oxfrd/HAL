@@ -12,17 +12,6 @@ namespace mcu::i2c
 {
     using namespace hal::i2c;
 
-    #define WAIT_FOR_FLAG(REG, FLAG, COUNTER, ERROR, NOTNEGATE) \
-    COUNTER = 0; \
-    while (!((REG) & (FLAG)) ^ (NOTNEGATE)) \
-    { \
-        ++COUNTER; \
-        if ((COUNTER) > (cLoopReplaysLimit)) \
-        { \
-            return ERROR; \
-        } \
-    }
-
     I2c::I2c(I2C_TypeDef *i2cRegs, std::shared_ptr<gpio::gpioAlternate> clkPin,
                 std::shared_ptr<gpio::gpioAlternate> sdaPin,
                 std::shared_ptr<interrupt::interrupt> interrupt,
@@ -82,8 +71,8 @@ namespace mcu::i2c
 
     eError I2c::send(std::uint8_t addr, uint8_t *buff, uint16_t len) 
     {
-        std::uint16_t inLoopCnt{0};
-        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_BUSY, inLoopCnt, eError::eBusy, 1);
+        if (waitForFlag(I2C_ISR_BUSY, true) != eError::eOk)
+            return eError::eFail;
 
         mRegs->CR2 = (addr << I2C_CR2_SADD_Pos) & I2C_CR2_SADD;
         mRegs->CR2 |= (len << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES;
@@ -91,35 +80,43 @@ namespace mcu::i2c
 
         for (int i = 0; i < len; i++)
         {
-            WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_TXIS, inLoopCnt, eError::eFail, 0);
+            if (waitForFlag(I2C_ISR_TXIS, false) != eError::eOk)
+                return eError::eFail;
+
             mRegs->TXDR = buff[i];
         }
         
-        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_TC, inLoopCnt, eError::eFail, 0);
+        if (waitForFlag(I2C_ISR_TC, false) != eError::eOk)
+            return eError::eFail;
 
         mRegs->CR2 |= I2C_CR2_STOP;
-        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_STOPF, inLoopCnt, eError::eFail, 0);
         
+        if (waitForFlag(I2C_ISR_STOPF, false) != eError::eOk)
+            return eError::eFail;
+       
         mRegs->ICR |= I2C_ICR_STOPCF;
         return eError::eOk;
     }
 
     eError I2c::get(std::uint8_t addr, uint8_t reg, uint8_t *buff, uint16_t len)
     {
-        std::uint16_t inLoopCnt{0};
-
-        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_BUSY, inLoopCnt, eError::eBusy, 1);
-
+        if (waitForFlag(I2C_ISR_BUSY, true) != eError::eOk)
+            return eError::eFail;
+       
         mRegs->CR2 = (addr << I2C_CR2_SADD_Pos) & I2C_CR2_SADD;
         mRegs->CR2 |= (1 << I2C_CR2_NBYTES_Pos) & I2C_CR2_NBYTES;
         mRegs->CR2 |= I2C_CR2_START;
-        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_TXIS, inLoopCnt, eError::eFail, 0);
-        
+
+        if (waitForFlag(I2C_ISR_TXIS, false) != eError::eOk)
+            return eError::eFail;
+
         mRegs->TXDR = reg;
-        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_TC, inLoopCnt, eError::eFail, 0);
+        if (waitForFlag(I2C_ISR_TC, false) != eError::eOk)
+            return eError::eFail;
 
         mRegs->CR2 |= I2C_CR2_STOP;
-        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_STOPF, inLoopCnt, eError::eFail, 0);
+        if (waitForFlag(I2C_ISR_STOPF, false) != eError::eOk)
+            return eError::eFail;
 
         mRegs->ICR |= I2C_ICR_STOPCF;
 
@@ -130,14 +127,18 @@ namespace mcu::i2c
 
         for(int i = 0; i<len; ++i)
         {
-            WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_RXNE, inLoopCnt, eError::eFail, 0);
+            if (waitForFlag(I2C_ISR_RXNE, false) != eError::eOk)
+                return eError::eFail;
+
             buff[i] = mRegs->RXDR;
         }
-        
-        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_TC, inLoopCnt, eError::eFail, 0);
 
+        if (waitForFlag(I2C_ISR_TC, false) != eError::eOk)
+            return eError::eFail;
+            
         mRegs->CR2 |= I2C_CR2_STOP;
-        WAIT_FOR_FLAG(mRegs->ISR, I2C_ISR_STOPF, inLoopCnt, eError::eFail, 0);
+        if (waitForFlag(I2C_ISR_STOPF, false) != eError::eOk)
+            return eError::eFail;
         
         mRegs->ICR |= I2C_ICR_STOPCF;
         return eError::eOk;
@@ -262,13 +263,28 @@ namespace mcu::i2c
 
         return eError::eOk;
     }
+
+    eError I2c::waitForFlag(uint32_t flag, bool notNegate)
+    {
+        uint16_t loopLimiter = 0;
+        while (!((mRegs->ISR) & (flag)) ^(notNegate))
+        {
+            ++loopLimiter;
+            if (loopLimiter > cLoopReplaysLimit)
+            {
+                return eError::eFail;
+            }
+        }
+        return eError::eOk;
+    }
+
 } // I2c
 
 
 // std::uint8_t acc8{0};
 // bool isEmpty{false};
 
-/*__attribute__((interrupt)) */void I2C1_EV_IRQHandler(void* arg)
+__attribute__((interrupt)) void I2C1_EV_IRQHandler(void* arg)
 {
     // transmit
     if (I2C1->ISR & I2C_ISR_TXE)

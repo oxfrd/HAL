@@ -51,13 +51,14 @@ namespace mcu::i2c {
         eError enableTxInterrupts(bool enable);
         eError enableRxInterrupts(bool enable); 
         eError giveBuffer();
+        eError waitForFlag(uint32_t flag, bool notNegate);
     };
 } // mcu::i2c
 
 #ifdef __cplusplus
  extern "C" {
 #endif
-    /*__attribute__((interrupt))*/ void I2C1_EV_IRQHandler(void* arg);
+    __attribute__((interrupt)) void I2C1_EV_IRQHandler(void* arg);
 #ifdef __cplusplus
 }
 #endif

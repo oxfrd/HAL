@@ -15,5 +15,5 @@ namespace hal::interrupt
         }
         
         return retPair; 
-    } 
+    }
 } //hal::interrupt
