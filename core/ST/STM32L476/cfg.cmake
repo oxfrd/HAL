@@ -1,1 +1,1 @@
-set(CPU_CORE cortex-m4)
+set(CPU_CORE cortex-m4 CACHE PATH "CPU_CORE")

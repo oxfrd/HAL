@@ -29,7 +29,15 @@ namespace module
 
     eError BMP280::init()
     {
-        while(readU8(Bmp280::cChipId) != 0x58);
+        uint16_t loopLimiter{0};
+        while(readU8(Bmp280::cChipId) != 0x58)
+        {
+            loopLimiter++;
+            if (loopLimiter > 3)
+            {
+                return eError::eUninitialized;
+            }
+        }
         /* read calibration data */
         mCalibT1 = readU16LE(Bmp280::cDIG_T1);
         mCalibT[0] = readU16LE(Bmp280::cDIG_T2);
@@ -74,6 +82,11 @@ namespace module
         }
 
         std::int32_t adc_P = readU24(Bmp280::cPressureData);
+        if(adc_P == cI2CReadErr)
+        {
+            *valPa = 0;
+            return eError::eFail;
+        }
         adc_P >>= 4;
 
         var1 = ((std::int64_t)mTFine) - 128000;
@@ -109,6 +122,12 @@ namespace module
     eError BMP280::getTemperature(float *val) 
     {
         std::int32_t adc_T = readU24(Bmp280::cTempData);
+        if(adc_T == cI2CReadErr)
+        {
+            *val = 0;
+            return eError::eFail;
+        }
+
         adc_T >>= 4;
 
         std::int32_t var1  = ((((adc_T>>3) - ((int32_t)mCalibT1 <<1))) *
@@ -163,7 +182,7 @@ namespace module
         uint8_t buff[3]{0,0,0};
         if (mI2c->get(mI2cAddress, reg, buff, 3) != eError::eOk)
         {
-            return 0;
+            return cI2CReadErr;
         }
         return ((buff[0] << 16) | buff[1] << 8 | buff[2]);
     }

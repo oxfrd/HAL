@@ -1,8 +1,14 @@
 #set(CMAKE_SYSTEM_NAME Generic)
 #set(CMAKE_SYSTEM_VERSION 1)
 cmake_minimum_required(VERSION 3.25)
+
+set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_SYSTEM_PROCESSOR arm)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
+
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # specify cross-compilers and tools
 set(CMAKE_C_COMPILER arm-none-eabi-gcc)
@@ -16,6 +22,13 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 set(HEX_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex)
 set(BIN_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin)
+
+message(STATUS "________________________________________________")
+message(STATUS "| CMAKE_CXX_COMPILER: ${CMAKE_C_COMPILER}       ")
+message(STATUS "| CMAKE_C_COMPILER: ${CMAKE_C_COMPILER}         ")
+message(STATUS "| CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD}     ")
+message(STATUS "| CMAKE_C_STANDARD: ${CMAKE_C_STANDARD}         ")
+message(STATUS "|_______________________________________________")
 
 
 #add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD

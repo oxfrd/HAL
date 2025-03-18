@@ -100,6 +100,8 @@ namespace module
         eError getTemperature(float *val) override;
     private:
         static constexpr std::uint8_t cDefaultAdrr{0xEC};
+        static constexpr std::uint32_t cI2CReadErr{1 << 24};
+        
         Bmp280::eMode mMode{Bmp280::eMode::eUnInit_UnsettableAtDevice};
         std::uint16_t mCalibT1;
         std::int16_t mCalibT[2];
