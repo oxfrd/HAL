@@ -29,7 +29,7 @@ namespace mcu::timer
     {
         // m_period = period;
         // Set prescaler and period
-        m_regs->PSC = 399;   // Prescaler (APB1 = 40 MHz, wanted 1 kHz)
+        m_regs->PSC = 39;   // Prescaler (APB1 = 40 MHz, wanted 1 kHz)
         m_regs->ARR = 9;    // Period (1 kHz / 1 Hz = 1000)
 
         return eError::eOk;
