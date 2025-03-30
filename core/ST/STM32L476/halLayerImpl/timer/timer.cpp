@@ -27,10 +27,11 @@ namespace mcu::timer
 
     eError countingTimer::setPeriod() 
     {
+        //set about 10us period
         // m_period = period;
         // Set prescaler and period
-        m_regs->PSC = 39;   // Prescaler (APB1 = 40 MHz, wanted 1 kHz)
-        m_regs->ARR = 9;    // Period (1 kHz / 1 Hz = 1000)
+        m_regs->PSC = 38;   // Prescaler (APB1 = 40 MHz, wanted 1 MHz)
+        m_regs->ARR = 1;    // Period (1 MHz / 1 Hz = 1000)
 
         return eError::eOk;
     }
