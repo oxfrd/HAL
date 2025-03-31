@@ -36,14 +36,14 @@ namespace mcu::interrupt
         *
         * @return always eError::eOk
         */
-        eError enable() override;
+        eError enable() override final;
         
         /**
         * @brief Disable interrupt.
         *
         * @return always eError::eOk
         */
-        eError disable() override;
+        eError disable() override final;
 
         /**
         * @brief Sets interrupt priority.
@@ -52,12 +52,14 @@ namespace mcu::interrupt
         * @return eError::eOk if priority was set successfully or set to default.
         *         eError::eNotPermitted if tried to set priority of cpu exception.
         */
-        eError setPriority(std::uint32_t priority) override;
+        eError setPriority(std::uint32_t priority) override final;
+
+        eError setPeriod(hal::timer::period_t period) override final;
     private:
         static constexpr std::uint32_t cDefaultPriority{UINT32_MAX};
         static constexpr std::uint32_t cLastPiority{20};
         
-        std::shared_ptr<hal::timer::ITimer> m_timer;
-        IRQn_Type m_id;
+        std::shared_ptr<hal::timer::ITimer> mTimer;
+        IRQn_Type mId;
     };
 }  // namespace mcu::timer

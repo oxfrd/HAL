@@ -20,19 +20,21 @@ namespace mcu::timer
         // enable();
     }
 
-    eError countingTimer::setPeriod(period_t per) 
+    /**
+     * @brief Set period for timer. For now only 1us, but minimal proper one is 25us.
+     * In the future will be extended to proper settings.
+     * @param period number of us to set
+     * @return 
+     */
+    eError countingTimer::setPeriod(period_t period) 
     {
-        return eError::eBusy;
-    }
+        if (period == 0)
+        {
+            return eError::eBadArgument;
+        }
 
-    eError countingTimer::setPeriod() 
-    {
-        //set about 10us period
-        // m_period = period;
-        // Set prescaler and period
-        m_regs->PSC = 38;   // Prescaler (APB1 = 40 MHz, wanted 1 MHz)
-        m_regs->ARR = 1;    // Period (1 MHz / 1 Hz = 1000)
-
+        m_regs->PSC = 0;
+        m_regs->ARR = (period * 16)-1;
         return eError::eOk;
     }
 

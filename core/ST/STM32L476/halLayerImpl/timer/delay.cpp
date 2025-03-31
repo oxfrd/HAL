@@ -6,11 +6,12 @@
 
 #pragma GCC optimize ("O0")
 
-volatile uint32_t mgDelay1usCnt{0};
+static volatile bool mTimeIsUp{false};
 
 __attribute__((interrupt)) void TIM2_IRQHandler()
 {
-    ++mgDelay1usCnt;
+    mTimeIsUp = true;
+
     TIM2->SR &= ~TIM_SR_UIF;
 }
 
@@ -27,26 +28,22 @@ namespace mcu::delay
         }
     }
 
-    // 10us for now, dont want to waste time for that
+    // min 25us for now, dont want to waste time for that
     eError delay::delayUs(std::chrono::microseconds us)
     {
+        mTimeIsUp = false;
+        mInterrupt->setPeriod(us.count());
         mInterrupt->enable();
-        std::uint32_t finalTimestamp = mgDelay1usCnt + us.count();
-        while(mgDelay1usCnt <= finalTimestamp)
+        while(mTimeIsUp == false)
         {
-            asm("NOP");
+             asm("NOP");
         }
-        // mInterrupt->disable();
+        mInterrupt->disable();
     }
 
     eError delay::delayMs(std::chrono::milliseconds ms)
     {
-        mInterrupt->enable();
-        std::uint32_t finalTimestamp = mgDelay1usCnt + (50 * ms.count());
-        while(mgDelay1usCnt <= finalTimestamp)
-        {
-            asm("NOP");
-        }
-        mInterrupt->disable();
+        delayUs(ms);
+        return eError::eOk;
     }
 } // delay

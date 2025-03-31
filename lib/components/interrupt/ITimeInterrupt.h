@@ -5,6 +5,7 @@
 
 #include "errors.h"
 #include "IMcu.h"
+#include "ITimer.h"
 
 namespace hal::interrupt
 {
@@ -25,6 +26,7 @@ namespace hal::interrupt
         virtual eError enable() = 0;
         virtual eError disable() = 0;
         virtual eError setPriority(std::uint32_t priority) = 0;
+        virtual eError setPeriod(hal::timer::period_t period) = 0;
     };
 
 } //hal::interrupt

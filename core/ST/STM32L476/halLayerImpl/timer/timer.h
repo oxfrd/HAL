@@ -21,7 +21,6 @@ namespace mcu::timer
     public:
         explicit countingTimer(TIM_TypeDef* regs); //, period_t period);
         eError setPeriod(period_t period) override;
-        eError setPeriod();
         eError enable() override;
         eError disable() override;
         eError enableClk() override;
