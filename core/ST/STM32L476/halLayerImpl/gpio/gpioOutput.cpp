@@ -45,23 +45,20 @@ namespace mcu::gpio
 
     eError gpioOutput::on()
     {
-        eError err = eError::eUninitialized;
         m_regs->ODR |= (1 << m_pinId);
-        return err;
+        return eError::eOk;
     }
 
     eError gpioOutput::off()
     {
-        eError err = eError::eUninitialized;
         m_regs->ODR &= ~(1 << m_pinId);
-        return err;
+        return eError::eOk;
     }
 
     eError gpioOutput::toggle()
     {
-        eError err = eError::eUninitialized;
         m_regs->ODR ^= (1 << m_pinId);
-        return err;
+        return eError::eOk;
     }
 
     // eError gpioOutput::deInit() { return eError::eUninitialized; }
