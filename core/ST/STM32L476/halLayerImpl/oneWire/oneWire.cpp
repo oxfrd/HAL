@@ -10,6 +10,7 @@
 namespace mcu::oneWire
 {
     using namespace hal::oneWire;
+    using namespace std::chrono_literals;
 
     oneWire::oneWire(std::shared_ptr<gpio::gpioOutAndInput> pin, 
         std::shared_ptr<hal::delay::IDelay> delay):

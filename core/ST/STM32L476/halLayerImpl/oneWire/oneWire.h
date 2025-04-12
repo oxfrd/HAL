@@ -8,7 +8,6 @@
 #include "IDelay.h"
 #include "interrupt.h"
 #include "gpioOutAndInput.h"
-#include "circularBuffer.h"
 
 namespace mcu::oneWire {
 
@@ -37,33 +36,5 @@ namespace mcu::oneWire {
         uint8_t readByte();
         eError writeBit(bool bit);
         eError writeByte(uint8_t byte, bool powerOff = true);
-
-
-
-    
-
-
-
-        eError setSpeed(eSpeedMode speed) override;
-        eError send(std::uint8_t addr, uint8_t *sendMe, uint16_t len) override;
-        eError sendVector(std::uint8_t addr, std::vector<std::uint8_t> sendMe) override; 
-        eError get(std::uint8_t addr, std::uint8_t reg, uint8_t *buff, uint16_t len) override;
-    private:
-        static constexpr size_t cTxBufferSize{1000};
-        static constexpr size_t cRxBufferSize{1000};
-        static constexpr std::uint16_t cLoopReplaysLimit{1000};
-
-        I2C_TypeDef *mRegs;
-        eSpeedMode mSpeedMode;
-        
-        eError enableI2c(bool enable);
-        eError enableClock(bool enable);
-        eError setProperPinsFunctionality();
-        eError enableTransmit(bool enable);
-        eError enableReceive(bool enable);
-        eError enableTxInterrupts(bool enable);
-        eError enableRxInterrupts(bool enable); 
-        eError giveBuffer();
-        eError waitForFlag(uint32_t flag, bool notNegate);
     };
-} // mcu::i2c
+} // mcu::oneWire
