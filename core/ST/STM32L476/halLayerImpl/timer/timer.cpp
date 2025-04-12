@@ -10,14 +10,12 @@ namespace mcu::timer
     using namespace hal::timer;
 
     countingTimer::countingTimer(
-        TIM_TypeDef* regs)://, period_t period):
+        TIM_TypeDef* regs, period_t period):
         m_regs(regs)
     {
-        // setPeriod(5);
         enableClk();
         setMode();
-        setPeriod();
-        // enable();
+        setPeriod(period);
     }
 
     /**

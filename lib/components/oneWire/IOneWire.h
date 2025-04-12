@@ -9,24 +9,19 @@
 
 namespace hal::oneWire
 {
-    enum class eSpeedMode
-    {
-        eStd = 100,
-        eFast = 400,
-        eFastPlus = 1000,
-    };
-
     class IOneWire : public IResource
     {
     public:
         IOneWire() = default;
-        virtual eError send(std::uint8_t addr, std::uint8_t *sendMe, std::uint16_t len) = 0;
-        virtual eError sendVector(std::uint8_t addr, std::vector<std::uint8_t> sendMe) = 0;
+                
+        virtual eError send(const uint8_t *buff, const uint16_t len) = 0;
+        virtual eError get(uint8_t *buff, const uint16_t len) = 0;
+        virtual eError reset() = 0;
+        virtual eError selectDevice(const uint8_t rom[8]) = 0;
+        virtual eError skipAdressing() = 0;
 
-        virtual eError get(std::uint8_t addr, std::uint8_t reg, std::uint8_t *buff, std::uint16_t len) = 0;
         std::pair<std::shared_ptr<IOneWire>, eError> getPtr( 
             std::uint16_t id,
             std::shared_ptr<hal::mcu::mcuManager> mcuMan);
-        virtual eError setSpeed(eSpeedMode speed) = 0;
     };
 } //hal::oneWire

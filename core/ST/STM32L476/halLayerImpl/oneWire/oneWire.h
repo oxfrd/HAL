@@ -5,6 +5,7 @@
 
 #include "stm32l476xx.h"
 #include "IOneWire.h"
+#include "IDelay.h"
 #include "interrupt.h"
 #include "gpioOutAndInput.h"
 #include "circularBuffer.h"
@@ -13,20 +14,32 @@ namespace mcu::oneWire {
 
     using namespace hal::oneWire;
     
-    constexpr std::uint8_t cAllI2cInstances{3};
-
     /**
      * @brief Class holding functionality of one wire. 
      */
     class oneWire : public IOneWire
     {
     public:
-        explicit oneWire(std::shared_ptr<gpio::gpioOutAndInput> pin);
+        explicit oneWire(std::shared_ptr<gpio::gpioOutAndInput> pin, std::shared_ptr<hal::delay::IDelay> delay);
     
-        eError get(uint8_t *buff, uint16_t len);
+        eError get(uint8_t *buff, const uint16_t len) override final;
+        eError send(const uint8_t *buff, const uint16_t len) override final;
+        eError reset() override final;
+        eError selectDevice(const uint8_t rom[8]) override final;
+        eError skipAdressing() override final;
     
     private:
-        eError oneWire::readBit(uint8_t *data);
+        static constexpr std::uint8_t cRetriesDuringReset{20};
+        std::shared_ptr<gpio::gpioOutAndInput> mPin{nullptr}; 
+        std::shared_ptr<hal::delay::IDelay> mDelay{nullptr};
+
+        bool readBit();
+        uint8_t readByte();
+        eError writeBit(bool bit);
+        eError writeByte(uint8_t byte, bool powerOff = true);
+
+
+
     
 
 
@@ -42,7 +55,6 @@ namespace mcu::oneWire {
 
         I2C_TypeDef *mRegs;
         eSpeedMode mSpeedMode;
-        std::shared_ptr<gpio::gpioOutAndInput> mPin; 
         
         eError enableI2c(bool enable);
         eError enableClock(bool enable);
@@ -55,11 +67,3 @@ namespace mcu::oneWire {
         eError waitForFlag(uint32_t flag, bool notNegate);
     };
 } // mcu::i2c
-
-#ifdef __cplusplus
- extern "C" {
-#endif
-    __attribute__((interrupt)) void I2C1_EV_IRQHandler(void* arg);
-#ifdef __cplusplus
-}
-#endif

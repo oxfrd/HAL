@@ -11,7 +11,6 @@
 namespace mcu::timer 
 {
     using namespace hal::timer;
-    using timerReg_t = TIM_TypeDef*;
 
     /**
      * @brief Class holding functionality of timer output. 
@@ -19,7 +18,7 @@ namespace mcu::timer
     class countingTimer : public ITimer
     {
     public:
-        explicit countingTimer(TIM_TypeDef* regs); //, period_t period);
+        explicit countingTimer(TIM_TypeDef* regs, period_t period = 25);
         eError setPeriod(period_t period) override;
         eError enable() override;
         eError disable() override;
