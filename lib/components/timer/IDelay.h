@@ -25,8 +25,8 @@ namespace hal::delay
             std::uint16_t id,
             std::shared_ptr<hal::mcu::mcuManager> mcuMan);
 
-        virtual eError delayUs(std::chrono::microseconds us) = 0;
-        virtual eError delayMs(std::chrono::milliseconds ms) = 0;
+        virtual eError delayUs(uint32_t us) = 0;
+        virtual eError delayMs(uint32_t ms) = 0;
     };
 
 } //hal::timer

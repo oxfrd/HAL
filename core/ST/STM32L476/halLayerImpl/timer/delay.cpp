@@ -25,25 +25,23 @@ namespace mcu::delay
         if (interrupt != nullptr)
         {
             mInterrupt = interrupt;
+            mInterrupt->disable();
         }
     }
 
     // min 25us for now, dont want to waste time for that
-    eError delay::delayUs(std::chrono::microseconds us)
+    eError delay::delayUs(uint32_t us)
     {
         mTimeIsUp = false;
-        mInterrupt->setPeriod(us.count());
+        mInterrupt->setPeriod(us);
         mInterrupt->enable();
-        while(mTimeIsUp == false)
-        {
-             asm("NOP");
-        }
-        mInterrupt->disable();
+        while(mTimeIsUp == false){;}
+        
+        return eError::eOk;
     }
 
-    eError delay::delayMs(std::chrono::milliseconds ms)
+    eError delay::delayMs(uint32_t ms)
     {
-        delayUs(ms);
-        return eError::eOk;
+        return delayUs(ms*1000);
     }
 } // delay

@@ -15,6 +15,7 @@ namespace mcu::interrupt
     {
         setPriority(priority);
         enable();
+        disable();
     }
 
     eError interrupt::enable() 

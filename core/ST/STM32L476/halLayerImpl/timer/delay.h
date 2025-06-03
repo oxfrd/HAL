@@ -21,8 +21,8 @@ namespace mcu::delay
     public:
         explicit delay(std::shared_ptr<hal::interrupt::ITimeInterrupt> interrupt);
 
-        eError delayUs(std::chrono::microseconds us) override final;
-        eError delayMs(std::chrono::milliseconds ms) override final;
+        eError delayUs(uint32_t us) override final;
+        eError delayMs(uint32_t ms) override final;
     private:
         std::shared_ptr<hal::interrupt::ITimeInterrupt> mInterrupt{nullptr};
     };

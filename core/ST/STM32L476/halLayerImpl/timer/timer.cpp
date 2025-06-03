@@ -32,6 +32,7 @@ namespace mcu::timer
         }
 
         m_regs->PSC = 0;
+        m_regs->CNT = 0;
         m_regs->ARR = (period * 16)-1;
         return eError::eOk;
     }
@@ -61,6 +62,7 @@ namespace mcu::timer
         m_regs->CR1 &= ~TIM_CR1_DIR;  // Counting direction - upwards
         m_regs->CR1 &= ~TIM_CR1_CMS;  // Basic mode
         m_regs->CR1 &= ~TIM_CR1_CKD;  // No clock dividing
+        m_regs->CR1 |= TIM_CR1_OPM;   // One pulse mode
         
         return eError::eOk;
     }

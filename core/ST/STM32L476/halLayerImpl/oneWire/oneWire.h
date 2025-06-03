@@ -19,7 +19,7 @@ namespace mcu::oneWire {
     class oneWire : public IOneWire
     {
     public:
-        explicit oneWire(std::shared_ptr<gpio::gpioOutAndInput> pin, std::shared_ptr<hal::delay::IDelay> delay);
+        explicit oneWire(std::shared_ptr<hal::gpio::IGpioOutAndInput> pin, std::shared_ptr<hal::delay::IDelay> delay);
     
         eError get(uint8_t *buff, const uint16_t len) override final;
         eError send(const uint8_t *buff, const uint16_t len) override final;
@@ -29,12 +29,12 @@ namespace mcu::oneWire {
     
     private:
         static constexpr std::uint8_t cRetriesDuringReset{20};
-        std::shared_ptr<gpio::gpioOutAndInput> mPin{nullptr}; 
+        std::shared_ptr<hal::gpio::IGpioOutAndInput> mPin{nullptr}; 
         std::shared_ptr<hal::delay::IDelay> mDelay{nullptr};
 
         bool readBit();
         uint8_t readByte();
         eError writeBit(bool bit);
-        eError writeByte(uint8_t byte, bool powerOff = true);
+        eError writeByte(uint8_t byte, bool powerOff = false);
     };
 } // mcu::oneWire

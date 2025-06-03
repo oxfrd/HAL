@@ -35,6 +35,7 @@ namespace mcu::interrupt
     eError timeInterrupt::disable()
     {
         NVIC_DisableIRQ(mId);
+        mTimer->disable();
         return eError::eOk;
     }
     

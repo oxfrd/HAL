@@ -18,6 +18,7 @@ namespace hal::sensor
         ITemperatureSensor() = default;
         virtual eError enable(bool enable) = 0;
         virtual eError getTemperature(float *val) = 0;
+        virtual eError getAddress(uint64_t *address) = 0;
         
         std::pair<std::shared_ptr<ITemperatureSensor>, eError> getPtr( 
             std::uint16_t id,
