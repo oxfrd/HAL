@@ -3,6 +3,7 @@
 //
 
 #include "timer.h"
+#include <cassert>
 
 
 namespace mcu::timer
@@ -10,11 +11,14 @@ namespace mcu::timer
     using namespace hal::timer;
 
     countingTimer::countingTimer(
-        TIM_TypeDef* regs, period_t period):
-        m_regs(regs)
+        TIM_TypeDef* regs, uint32_t mcuClockFreq, period_t period):
+        mRegs(regs),
+        mMcuClockFreq(mcuClockFreq)
     {
+        assert(mRegs != nullptr);
         enableClk();
         setMode();
+        mRegs->PSC = (mMcuClockFreq/cDefault1us)-1;
         setPeriod(period);
     }
 
@@ -31,22 +35,22 @@ namespace mcu::timer
             return eError::eBadArgument;
         }
 
-        m_regs->PSC = 0;
-        m_regs->CNT = 0;
-        m_regs->ARR = (period * 16)-1;
+        mRegs->PSC = 0;
+        mRegs->CNT = 0;
+        mRegs->ARR = (period * 16)-1;
         return eError::eOk;
     }
 
     eError countingTimer::enable()
     {
-        m_regs->CR1 |= TIM_CR1_CEN;
-        while(!(m_regs->SR & (1<<0)))
+        mRegs->CR1 |= TIM_CR1_CEN;
+        while(!(mRegs->SR & (1<<0)))
         return eError::eOk;
     }
 
     eError countingTimer::disable()
     {
-        m_regs->CR1 &= ~TIM_CR1_CEN;
+        mRegs->CR1 &= ~TIM_CR1_CEN;
         return eError::eOk;
     }
 
@@ -59,17 +63,18 @@ namespace mcu::timer
 
     eError mcu::timer::countingTimer::setMode() 
     {
-        m_regs->CR1 &= ~TIM_CR1_DIR;  // Counting direction - upwards
-        m_regs->CR1 &= ~TIM_CR1_CMS;  // Basic mode
-        m_regs->CR1 &= ~TIM_CR1_CKD;  // No clock dividing
-        m_regs->CR1 |= TIM_CR1_OPM;   // One pulse mode
-        
+        mRegs->CR1 &= ~TIM_CR1_DIR;  // Counting direction - upwards
+        mRegs->CR1 &= ~TIM_CR1_CMS;  // Basic mode
+        mRegs->CR1 &= ~TIM_CR1_CKD;  // No clock dividing
+        mRegs->CR1 |= TIM_CR1_OPM;   // One pulse mode
+        mRegs->CCR1 = 0;
+
         return eError::eOk;
     }
 
     eError mcu::timer::countingTimer::enableInterrupt() 
     {
-        m_regs->DIER |= TIM_DIER_UIE;
+        mRegs->DIER |= TIM_DIER_UIE;
         
         return eError::eOk;
     }
