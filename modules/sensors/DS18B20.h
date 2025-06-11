@@ -20,7 +20,6 @@ namespace module
         eError getAddress(uint64_t *address) override;
     private:
         std::shared_ptr<hal::oneWire::IOneWire> mOneWire;
-
-
+        const std::uint8_t cReadROM{(0x33)};
     };
 } //namespace module

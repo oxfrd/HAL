@@ -1,25 +1,20 @@
 #include "DS18B20.h"
 #include <cassert>
+#include <cstring>
 
 namespace module
 {
     DS18B20::DS18B20(std::shared_ptr<hal::oneWire::IOneWire> oneWire)
     {
-        if (oneWire == nullptr)
-        {
-            while (1)
-            {
-                asm("NOP");
-            }
-        }
-        mOneWire = oneWire;
+        assert(mOneWire != nullptr);
     }
 
     eError DS18B20::enable(bool enable)
     {
-        if (mOneWire->reset() == eError::eBusy)
+        auto err = mOneWire->reset();
+        if (err != eError::eOk)
         {
-            return eError::eBusy;
+            return err;
         }
         return mOneWire->skipAdressing();
     }
@@ -32,7 +27,27 @@ namespace module
 
     eError DS18B20::getAddress(uint64_t *address) 
     { 
-        return eError::eUninitialized;
+        auto err = mOneWire->reset();
+        if (err != eError::eOk)
+        {
+            return err;
+        }
+
+        err = mOneWire->send(&cReadROM,1);
+        if (err != eError::eOk)
+        {
+            return err;
+        }
+        
+        uint8_t rom_code[8];
+        err = mOneWire->get(rom_code,8);
+        if (err != eError::eOk)
+        {
+            return err;
+        }
+
+        std::memcpy(address, rom_code, sizeof(address));
+        return err;
     }
 
 }  // namespace module
