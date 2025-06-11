@@ -66,7 +66,7 @@ namespace mcu::oneWire
             assert(0);
             return eError::eUninitialized;
         }
-        mDelay->delayUs(50);
+        mDelay->delayUs(70);
         
         bool retVal = not mPin->getState();
         //critical section stop
@@ -85,12 +85,17 @@ namespace mcu::oneWire
     eError oneWire::selectDevice(const uint8_t rom[8])
     {
         auto err = writeByte(0x55);
+        if (err != eError::eOk);
+        {
+            return err;
+        }
 
         for (uint8_t i = 0; i < 8; i++) 
         {
-            if (writeByte(rom[i]) != eError::eOk);
+            err = writeByte(rom[i]);
+            if (err != eError::eOk);
             {
-                return eError::eFail;
+                return err;
             }
         }
         return eError::eOk;
@@ -112,9 +117,11 @@ namespace mcu::oneWire
 
     eError oneWire::send(const uint8_t *buff, const uint16_t len) 
     {
+        eError err{eError::eFail};
         for(uint16_t i = 0; i<len; i++)
         {
-            writeByte(buff[i]);
+            err = writeByte(buff[i]);
+
         }
         return eError::eOk;
     }
@@ -125,27 +132,22 @@ namespace mcu::oneWire
     //
     eError oneWire::writeBit(bool bit)
     {
+        if (mPin->setPinMode(hal::gpio::eMode::eOutput) != eError::eOk)
+        {
+            assert(0);
+            return eError::eFail;
+        }
+
         if (bit) 
         {
             //critical section
-            if (mPin->setPinMode(hal::gpio::eMode::eOutput) != eError::eOk)
-            {
-                assert(0);
-                return eError::eFail;
-            }
-
             if (mPin->off() != eError::eOk)
             {
                 assert(0);
                 return eError::eFail;
             }
             
-            mDelay->delayUs(10);
-            if (mPin->setPinMode(hal::gpio::eMode::eOutput) != eError::eOk)
-            {
-                assert(0);
-                return eError::eFail;
-            }
+            mDelay->delayUs(6);
 
             if (mPin->on() != eError::eOk)
             {
@@ -153,31 +155,25 @@ namespace mcu::oneWire
                 return eError::eFail;
             }
             //critical section end
-            return mDelay->delayUs(55);
+            return mDelay->delayUs(64);
         } else 
         {
             //critical section
-            if (mPin->setPinMode(hal::gpio::eMode::eOutput) != eError::eOk)
-            {
-                assert(0);
-                return eError::eFail;
-            }
-
             if (mPin->off() != eError::eOk)
             {
                 assert(0);
                 return eError::eFail;
             }
 
-            mDelay->delayUs(65);
+            mDelay->delayUs(60);
 
-            if (mPin->off() != eError::eOk)
+            if (mPin->on() != eError::eOk)
             {
                 assert(0);
                 return eError::eFail;
             }
             //critical section end
-            return mDelay->delayUs(5);
+            return mDelay->delayUs(10);
         }
     }
 
@@ -192,11 +188,14 @@ namespace mcu::oneWire
     */
     eError oneWire::writeByte(uint8_t byte, bool powerOff) 
     {
+        eError err{eError::eFail};
+
         for (uint8_t bitMask = 0x01; bitMask; bitMask <<= 1)
         {
-            if (writeBit((bitMask & byte) ? 1 : 0) != eError::eOk)
+            err = writeBit(bitMask & byte ? 1 : 0); 
+            if (err != eError::eOk)
             {
-                return eError::eFail;
+                return err;
             }
         }
 
@@ -250,7 +249,14 @@ namespace mcu::oneWire
             return retVal;
         }
 
-        mDelay->delayUs(3);
+        mDelay->delayUs(6);
+
+        if (mPin->on() != eError::eOk)
+        {
+            assert(0);
+            return retVal;
+        }
+        mDelay->delayUs(9);
 
         if (mPin->setPinMode(hal::gpio::eMode::eInput) != eError::eOk)
         {
@@ -258,13 +264,11 @@ namespace mcu::oneWire
             return retVal;
         }
 
-        mDelay->delayUs(10);
-
         retVal = mPin->getState();
 
         //TODO: critical section stop
 
-        mDelay->delayUs(53);
+        mDelay->delayUs(55);
         return retVal;
     }
 }
