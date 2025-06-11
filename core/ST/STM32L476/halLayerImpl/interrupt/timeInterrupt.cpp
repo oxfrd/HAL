@@ -16,6 +16,7 @@ namespace mcu::interrupt
     {
         assert(timer != nullptr);
         mTimer = timer;
+        assert(mId >= 0);
 
         setPriority(priority);
         // enable();
@@ -35,8 +36,7 @@ namespace mcu::interrupt
     eError timeInterrupt::disable()
     {
         NVIC_DisableIRQ(mId);
-        mTimer->disable();
-        return eError::eOk;
+        return mTimer->disable();
     }
     
     eError timeInterrupt::setPriority(std::uint32_t priority)
@@ -63,14 +63,7 @@ namespace mcu::interrupt
 
     eError timeInterrupt::setPeriod(hal::timer::period_t period)
     {
-        if(mId < 0) 
-        {
-            return eError::eUninitialized;
-        }
-
-        mTimer->setPeriod(period);
-
-        return eError::eOk;
+        return mTimer->setPeriod(period);
     }
 
 
