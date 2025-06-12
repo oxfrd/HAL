@@ -6,8 +6,6 @@
 
 #include "oneWire.h"
 
-#pragma GCC optimize ("O0")
-
 namespace mcu::oneWire
 {
     using namespace hal::oneWire;
@@ -15,31 +13,23 @@ namespace mcu::oneWire
 
     oneWire::oneWire(std::shared_ptr<hal::gpio::IGpioOutAndInput> pin, 
         std::shared_ptr<hal::delay::IDelay> delay):
-    IOneWire()
+    IOneWire(),
+    mPin(pin),
+    mDelay(delay)
     {
-        if(pin == nullptr)
-        {
-            assert(0);
-        }
-        mPin = pin; 
+        assert(mPin != nullptr);
+        assert(mDelay != nullptr);
+
         mPin->setSpeed(hal::gpio::eSpeed::eVeryHigh);
-        
-        if(delay == nullptr)
-        {
-            assert(0);
-        }
-        mDelay = delay;
     }
 
     eError oneWire::reset()
     {
         uint8_t retries = cRetriesDuringReset;
 
-        if (mPin->setPinMode(hal::gpio::eMode::eInput) != eError::eOk)
-        {
-            assert(0);
-            return eError::eUninitialized;
-        }
+        auto err = mPin->setPinMode(hal::gpio::eMode::eInput);
+        if (err != eError::eOk)
+            return err;
 
         do 
         {
@@ -52,25 +42,31 @@ namespace mcu::oneWire
         while (not mPin->getState());
 
         //critical section
-        if (mPin->setPinMode(hal::gpio::eMode::eOutput) != eError::eOk)
-        {
-            assert(0);
-            return eError::eUninitialized;
-        }
-        mDelay->delayUs(480);
-        mPin->off();
+        err = mPin->setPinMode(hal::gpio::eMode::eOutput);
+        if (err != eError::eOk)
+            return err;
 
-        GPIOE->ODR ^= (1 << 8);
-        if (mPin->setPinMode(hal::gpio::eMode::eInput) != eError::eOk)
-        {
-            assert(0);
-            return eError::eUninitialized;
-        }
-        mDelay->delayUs(70);
+        err = mPin->off();
+        if (err != eError::eOk)
+            return err;
         
+        err = mDelay->delayUs(480);
+        if (err != eError::eOk)
+            return err;
+
+        err = mPin->setPinMode(hal::gpio::eMode::eInput);
+        if (err != eError::eOk)
+            return err;
+
+        err = mDelay->delayUs(70);
+        if (err != eError::eOk)
+            return err;
+
         bool retVal = not mPin->getState();
         //critical section stop
-        mDelay->delayUs(410);
+        err = mDelay->delayUs(410);
+        if (err != eError::eOk)
+            return err;
 
         if(retVal)
         {
@@ -85,18 +81,14 @@ namespace mcu::oneWire
     eError oneWire::selectDevice(const uint8_t rom[8])
     {
         auto err = writeByte(0x55);
-        if (err != eError::eOk);
-        {
+        if (err != eError::eOk)
             return err;
-        }
 
         for (uint8_t i = 0; i < 8; i++) 
         {
             err = writeByte(rom[i]);
-            if (err != eError::eOk);
-            {
+            if (err != eError::eOk)
                 return err;
-            }
         }
         return eError::eOk;
     }
@@ -117,11 +109,12 @@ namespace mcu::oneWire
 
     eError oneWire::send(const uint8_t *buff, const uint16_t len) 
     {
-        eError err{eError::eFail};
+        auto err{eError::eFail};
         for(uint16_t i = 0; i<len; i++)
         {
             err = writeByte(buff[i]);
-
+            if (err != eError::eOk)
+                return err;
         }
         return eError::eOk;
     }
@@ -132,46 +125,42 @@ namespace mcu::oneWire
     //
     eError oneWire::writeBit(bool bit)
     {
-        if (mPin->setPinMode(hal::gpio::eMode::eOutput) != eError::eOk)
-        {
-            assert(0);
-            return eError::eFail;
-        }
+        auto err = mPin->setPinMode(hal::gpio::eMode::eOutput);
+        if (err != eError::eOk)
+            return err;
 
         if (bit) 
         {
             //critical section
-            if (mPin->off() != eError::eOk)
-            {
-                assert(0);
-                return eError::eFail;
-            }
+            err = mPin->off();
+            if (err != eError::eOk)
+                return err;
             
-            mDelay->delayUs(6);
+            err = mDelay->delayUs(6);
+            if (err != eError::eOk)
+                return err;
 
-            if (mPin->on() != eError::eOk)
-            {
-                assert(0);
-                return eError::eFail;
-            }
+            err = mPin->on();
+            if (err != eError::eOk)
+                return err;
+
             //critical section end
             return mDelay->delayUs(64);
         } else 
         {
             //critical section
-            if (mPin->off() != eError::eOk)
-            {
-                assert(0);
-                return eError::eFail;
-            }
+            err = mPin->off();
+            if (err != eError::eOk)
+                return err;
 
-            mDelay->delayUs(60);
+            err = mDelay->delayUs(60);
+            if (err != eError::eOk)
+                return err;
 
-            if (mPin->on() != eError::eOk)
-            {
-                assert(0);
-                return eError::eFail;
-            }
+            err = mPin->on();
+            if (err != eError::eOk)
+                return err;
+
             //critical section end
             return mDelay->delayUs(10);
         }
@@ -192,27 +181,21 @@ namespace mcu::oneWire
 
         for (uint8_t bitMask = 0x01; bitMask; bitMask <<= 1)
         {
-            err = writeBit(bitMask & byte ? 1 : 0); 
+            err = writeBit(bitMask & byte ? 1 : 0);
             if (err != eError::eOk)
-            {
                 return err;
-            }
         }
 
         if (powerOff)
         {
             //critical section
-            if (mPin->setPinMode(hal::gpio::eMode::eOutput) != eError::eOk)
-            {
-                assert(0);
-                return eError::eFail;
-            }
+            err = mPin->setPinMode(hal::gpio::eMode::eOutput);
+            if (err != eError::eOk)
+                return err;
 
-            if (mPin->off() != eError::eOk)
-            {
-                assert(0);
-                return eError::eFail;
-            }
+            err = mPin->off();
+            if (err != eError::eOk)
+                return err;
             //critical section end
         }
         return eError::eOk;
@@ -238,31 +221,20 @@ namespace mcu::oneWire
 
         //TODO: critical section start
         if (mPin->setPinMode(hal::gpio::eMode::eOutput) != eError::eOk)
-        {
-            assert(0);
             return retVal;
-        }
 
         if (mPin->off() != eError::eOk)
-        {
-            assert(0);
             return retVal;
-        }
 
         mDelay->delayUs(6);
 
         if (mPin->on() != eError::eOk)
-        {
-            assert(0);
             return retVal;
-        }
+
         mDelay->delayUs(9);
 
         if (mPin->setPinMode(hal::gpio::eMode::eInput) != eError::eOk)
-        {
-            assert(0);
             return retVal;
-        }
 
         retVal = mPin->getState();
 
