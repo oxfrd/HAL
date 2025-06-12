@@ -34,7 +34,17 @@ At present, the repository houses both the HAL and a test application within the
 - general purpose reservation
 #### Uart:
 - get and transmit using interrupts
-
+#### Blocking timer:
+- timer which block program execution from min 3 us
+#### One Wire:
+- add one wire communication interface
+#### I2C:
+- get and transmit not fully finished for now
+#### BMP280:
+- pressure and temperature measurement
+#### DS18B20:
+- temperature measurements
+  
 ## Future Directions:
 
 **1. Isolate the Test Application:** 
@@ -61,10 +71,11 @@ _**Cloning repo:**_
 - ***lib/components*** - contains **interface and base classes** for mcu modules 
 - ***lib/utils*** - contains common implementation of utilities  
 - ***core/*** - contains all related to **specific mcu model ** registers, implementations of components with interfaces as from ***lib/components*** 
-
+- ***modules/*** - contains external modules, chips, sensor, etc implementation of interfaces as from ***lib/modules***
+- 
 ### Building the Project:
 
-There is used CMake build system.
+There is used CMake build system. It's possible to attach components to use them and build only them.
 
 #
 ### oxfrd
