@@ -1,81 +1,81 @@
 //
-// Created by oxford on 20.09.23.
+// Created by oxford on 09.06.25.
 //
 
-#include "timer.h"
+#include "blockingTimer.h"
 #include <cassert>
 
+#pragma GCC optimize ("O0")
 
-namespace mcu::timer
+namespace mcu::blockingTimer
 {
     using namespace hal::timer;
 
-    countingTimer::countingTimer(
+    blockingTimer::blockingTimer(
         TIM_TypeDef* regs, uint32_t mcuClockFreq, period_t period):
         mRegs(regs),
         mMcuClockFreq(mcuClockFreq)
     {
         assert(mRegs != nullptr);
+        
         enableClk();
         setMode();
         mRegs->PSC = (mMcuClockFreq/cDefault1us)-1;
         setPeriod(period);
     }
 
-    /**
-     * @brief Set period for timer. For now only 1us, but minimal proper one is 25us.
-     * In the future will be extended to proper settings.
-     * @param period number of us to set
-     * @return 
-     */
-    eError countingTimer::setPeriod(period_t period) 
+    eError blockingTimer::setPeriod(period_t period) 
     {
-        if (period == 0)
+        if (period < 3)
         {
             return eError::eBadArgument;
         }
 
-        mRegs->PSC = 0;
-        mRegs->CNT = 0;
-        mRegs->ARR = (period * 16)-1;
+        mRegs->ARR = 2*period-4;
+        mRegs->CR1 |= TIM_CR1_CEN;
+
+        while (!(mRegs->SR & TIM_SR_UIF));
+        mRegs->SR &= ~TIM_SR_UIF;
+
+        mRegs->CR1 &= ~TIM_CR1_CEN;
+
         return eError::eOk;
     }
 
-    eError countingTimer::enable()
+    eError blockingTimer::enable()
     {
         mRegs->CR1 |= TIM_CR1_CEN;
         while(!(mRegs->SR & (1<<0)))
         return eError::eOk;
     }
 
-    eError countingTimer::disable()
+    eError blockingTimer::disable()
     {
         mRegs->CR1 &= ~TIM_CR1_CEN;
         return eError::eOk;
     }
 
-    eError mcu::timer::countingTimer::enableClk() 
+    eError blockingTimer::enableClk() 
     {
-        //Turn on clock for TIM2
         RCC->APB1ENR1 |= RCC_APB1ENR1_TIM2EN;
         return eError::eOk;
     }
 
-    eError mcu::timer::countingTimer::setMode() 
+    eError blockingTimer::setMode() 
     {
         mRegs->CR1 &= ~TIM_CR1_DIR;  // Counting direction - upwards
         mRegs->CR1 &= ~TIM_CR1_CMS;  // Basic mode
         mRegs->CR1 &= ~TIM_CR1_CKD;  // No clock dividing
         mRegs->CR1 |= TIM_CR1_OPM;   // One pulse mode
         mRegs->CCR1 = 0;
-
+    
         return eError::eOk;
     }
 
-    eError mcu::timer::countingTimer::enableInterrupt() 
+    eError blockingTimer::enableInterrupt() 
     {
         mRegs->DIER |= TIM_DIER_UIE;
         
         return eError::eOk;
     }
-} // timer
+} // blockingTimer

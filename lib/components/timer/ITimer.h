@@ -9,7 +9,7 @@
 
 namespace hal::timer
 {
-    using period_t = std::chrono::duration<double>;
+    using period_t = std::uint32_t;
      /**
     * @brief General microcontroller interface.
     *

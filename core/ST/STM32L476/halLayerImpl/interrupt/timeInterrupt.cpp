@@ -12,10 +12,11 @@ namespace mcu::interrupt
 
     timeInterrupt::timeInterrupt(IRQn_Type id, std::shared_ptr<hal::timer::ITimer> timer, 
         std::uint32_t priority):
-        m_id(id)
+        mId(id)
     {
         assert(timer != nullptr);
-        m_timer = timer;
+        mTimer = timer;
+        assert(mId >= 0);
 
         setPriority(priority);
         // enable();
@@ -26,28 +27,28 @@ namespace mcu::interrupt
     eError timeInterrupt::enable() 
     {
         __enable_irq();
-        m_timer->enableInterrupt();
-        m_timer->enable(); 
-        NVIC_EnableIRQ(m_id);
+        mTimer->enableInterrupt();
+        mTimer->enable(); 
+        NVIC_EnableIRQ(mId);
         return eError::eOk; 
     }
 
     eError timeInterrupt::disable()
     {
-        NVIC_DisableIRQ(m_id);
-        return eError::eOk;
+        NVIC_DisableIRQ(mId);
+        return mTimer->disable();
     }
     
     eError timeInterrupt::setPriority(std::uint32_t priority)
     {
-        if(m_id < 0) 
+        if(mId < 0) 
         {
-            return eError::eNotPermitted;
+            return eError::eUninitialized;
         }
 
         if(priority == cDefaultPriority)
         {
-            NVIC_SetPriority(m_id, 1);
+            NVIC_SetPriority(mId, 1);
             return eError::eOk;
         }
 
@@ -56,8 +57,14 @@ namespace mcu::interrupt
             return eError::eBadArgument;
         }
 
-        NVIC_SetPriority(m_id, priority);
+        NVIC_SetPriority(mId, priority);
         return eError::eOk;
     }
+
+    eError timeInterrupt::setPeriod(hal::timer::period_t period)
+    {
+        return mTimer->setPeriod(period);
+    }
+
 
 } // timer

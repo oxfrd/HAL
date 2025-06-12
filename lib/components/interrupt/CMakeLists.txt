@@ -10,5 +10,6 @@ target_link_libraries(IINTERRUPT PRIVATE MCU_RELATED IMCU)
 target_include_directories(IINTERRUPT PRIVATE
         ${HAL_DIR_PATH}/lib
         ${HAL_DIR_PATH}/lib/components/interrupt
+        ${HAL_DIR_PATH}/lib/components/timer
 )
  
