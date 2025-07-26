@@ -45,7 +45,7 @@ namespace mcu::blockingTimer
     eError blockingTimer::enable()
     {
         mRegs->CR1 |= TIM_CR1_CEN;
-        while(!(mRegs->SR & (1<<0)))
+        while(!(mRegs->SR & (1<<0)));
         return eError::eOk;
     }
 
