@@ -56,6 +56,7 @@ namespace mcu::uart {
 #ifdef __cplusplus
  extern "C" {
 #endif
+    __attribute__((interrupt)) void USART1_IRQHandler(void);
     __attribute__((interrupt)) void USART2_IRQHandler(void);
 #ifdef __cplusplus
 }
