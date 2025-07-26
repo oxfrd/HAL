@@ -5,8 +5,15 @@
 #include "uart.h"
 #include <cassert>
 
+static constexpr uint8_t cUart1BuffersIdx = 0;
+static constexpr uint8_t cUart2BuffersIdx = 1;
+static constexpr uint8_t cUart3BuffersIdx = 2;
+static constexpr uint8_t cUart4BuffersIdx = 3;
+static constexpr uint8_t cUart5BuffersIdx = 4;
+
 std::array<circularBuffer*, 5> mgTxBuff;
 std::array<circularBuffer*, 5> mgRxBuff;
+std::array<uint8_t, 5> mgBuffer;
 
 namespace mcu::uart
 {
@@ -103,10 +110,12 @@ namespace mcu::uart
     {
         if(enable)
         {
+            RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
             RCC->APB1ENR1 |= RCC_APB1ENR1_USART2EN;
         }
         else
         {
+            RCC->APB2ENR &= ~(RCC_APB2ENR_USART1EN);
             RCC->APB1ENR1 &= ~(RCC_APB1ENR1_USART2EN);
         }
         return eError::eOk;
@@ -155,20 +164,32 @@ namespace mcu::uart
     {
         if (mRegs == USART1)        
         {
-            mgTxBuff.at(0) = &mTxBuff;
-            mgRxBuff.at(0) = &mRxBuff;
+            mgTxBuff.at(cUart1BuffersIdx) = &mTxBuff;
+            mgRxBuff.at(cUart1BuffersIdx) = &mRxBuff;
             return eError::eOk;
         }
         else if (mRegs == USART2)
         {
-            mgTxBuff.at(1) = &mTxBuff;
-            mgRxBuff.at(1) = &mRxBuff;
+            mgTxBuff.at(cUart2BuffersIdx) = &mTxBuff;
+            mgRxBuff.at(cUart2BuffersIdx) = &mRxBuff;
             return eError::eOk;
         }
         else if (mRegs == USART3)
         {
-            mgTxBuff.at(2) = &mTxBuff;
-            mgRxBuff.at(2) = &mRxBuff;
+            mgTxBuff.at(cUart3BuffersIdx) = &mTxBuff;
+            mgRxBuff.at(cUart3BuffersIdx) = &mRxBuff;
+            return eError::eOk;
+        }
+        else if (mRegs == UART4)
+        {
+            mgTxBuff.at(cUart4BuffersIdx) = &mTxBuff;
+            mgRxBuff.at(cUart4BuffersIdx) = &mRxBuff;
+            return eError::eOk;
+        }
+        else if (mRegs == UART5)
+        {
+            mgTxBuff.at(cUart5BuffersIdx) = &mTxBuff;
+            mgRxBuff.at(cUart5BuffersIdx) = &mRxBuff;
             return eError::eOk;
         }
         
@@ -223,17 +244,36 @@ namespace mcu::uart
 } // uart
 
 
-std::uint8_t acc8{0};
-bool isEmpty{false};
+__attribute__((interrupt)) void USART1_IRQHandler(void)
+{
+    // transmit
+    if (USART1->ISR & USART_ISR_TXE)
+    {
+        if (mgTxBuff[cUart1BuffersIdx]->pop(&mgBuffer[cUart1BuffersIdx]))
+        {
+            USART1->TDR = mgBuffer[cUart1BuffersIdx];
+        }
+        else
+        {
+            USART1->CR1 &= ~USART_CR1_TCIE;
+        }
+    }
+
+    // receive
+    if (USART1->ISR & USART_ISR_RXNE) 
+    {
+        mgRxBuff[cUart1BuffersIdx]->put(USART1->RDR);
+    }
+}
 
 __attribute__((interrupt)) void USART2_IRQHandler(void)
 {
     // transmit
     if (USART2->ISR & USART_ISR_TXE)
     {
-        if (mgTxBuff[1]->pop(&acc8))
+        if (mgTxBuff[cUart2BuffersIdx]->pop(&mgBuffer[cUart2BuffersIdx]))
         {
-            USART2->TDR = acc8;
+            USART2->TDR = mgBuffer[cUart2BuffersIdx];
         }
         else
         {
@@ -244,6 +284,6 @@ __attribute__((interrupt)) void USART2_IRQHandler(void)
     // receive
     if (USART2->ISR & USART_ISR_RXNE) 
     {
-        mgRxBuff[1]->put(USART2->RDR);
+        mgRxBuff[cUart2BuffersIdx]->put(USART2->RDR);
     }
 }
