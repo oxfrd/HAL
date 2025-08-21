@@ -19,6 +19,7 @@ namespace hal::oneWire
         virtual eError reset() = 0;
         virtual eError selectDevice(const uint8_t rom[8]) = 0;
         virtual eError skipAdressing() = 0;
+        virtual eError scanNetwork(uint8_t *p) = 0;
 
         std::pair<std::shared_ptr<IOneWire>, eError> getPtr( 
             std::uint16_t id,
