@@ -26,6 +26,7 @@ namespace mcu::oneWire {
         eError reset() override final;
         eError selectDevice(const uint8_t rom[8]) override final;
         eError skipAdressing() override final;
+        eError scanNetwork(uint8_t *p) override final;
     
     private:
         static constexpr std::uint8_t cRetriesDuringReset{20};
@@ -36,5 +37,9 @@ namespace mcu::oneWire {
         uint8_t readByte();
         eError writeBit(bool bit);
         eError writeByte(uint8_t byte, bool powerOff = false);
+        void reset_search();
+        void target_search(uint8_t family_code);
+        uint8_t search(uint8_t *newAddr);
+
     };
 } // mcu::oneWire
